@@ -1,0 +1,49 @@
+'
+' Cross-reference for tiles and sprites.
+'
+' Syntax for each line is in the form
+' [id] [tilename] [Tile Description]
+'
+' Example:
+' 5130 cross-wall Cross Wall (Up Down Left Right Connected)
+'
+'
+'
+
+000 blank blank tile
+001 ghost-door wall of the ghost box
+002 pellet a normal pellet
+003 power-pellet a power pellet (makes Pac-Man invincible)
+' 004 start Pac-Man's start position
+
+' 010 ghost-blinky blinky
+' 011 ghost-pinky pinky
+' 012 ghost-inky inky
+' 013 ghost-sue sue
+
+020 door-h horizontal door (teleport to other side of maze)
+021 door-v vertical door (teleport to other side of maze)
+' 022 show-logo draws the logo
+' 023 high-scores draws a high-score list
+
+100 wall-straight-h a horizontal wall
+101 wall-straight-v a vertical wall
+
+105 wall-corner-ll lower-left corner of a wall
+106 wall-corner-lr lower-right corner of a wall
+107 wall-corner-ul upper-left corner of a wall
+108 wall-corner-ur upper-right corner of a wall
+
+110 wall-end-b bottom end of a wall
+111 wall-end-l left end of a wall
+112 wall-end-r right end of a wall
+113 wall-end-t top end of a wall
+
+120 wall-nub a one-tile "nub" wall
+
+130 wall-t-bottom a "T"-shaped wall, bottom-orientation
+131 wall-t-left a "T"-shaped wall, left-orientation
+132 wall-t-right a "T"-shaped wall, right-orientation
+133 wall-t-top a "T"-shaped wall, top-orientation
+
+140 wall-x a four-way wall

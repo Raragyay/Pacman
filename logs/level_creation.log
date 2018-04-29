@@ -1,0 +1,89 @@
+INFO 2018-04-27 14:25:49,330 Level 0 successfully opened
+DEBUG 2018-04-27 14:25:49,330 This is a divider or attribute line.
+DEBUG 2018-04-27 14:25:49,331 This is a divider or attribute line.
+DEBUG 2018-04-27 14:25:49,331 This is a divider or attribute line.
+WARNING 2018-04-27 14:25:49,331 Received unknown data at line 3: # bgcolor 0 0 0
+DEBUG 2018-04-27 14:25:49,331 This is a divider or attribute line.
+DEBUG 2018-04-27 14:25:49,331 This is a divider or attribute line.
+DEBUG 2018-04-27 14:25:49,331 This is a divider or attribute line.
+DEBUG 2018-04-27 14:25:49,331 This is a divider or attribute line.
+DEBUG 2018-04-27 14:25:49,332 Skipping empty line
+DEBUG 2018-04-27 14:25:49,332 This is a divider or attribute line.
+DEBUG 2018-04-27 14:25:49,332 Now reading level data.
+DEBUG 2018-04-27 14:25:49,333 21 tiles in row 0
+DEBUG 2018-04-27 14:25:49,333 21 tiles in row 1
+DEBUG 2018-04-27 14:25:49,333 21 tiles in row 2
+DEBUG 2018-04-27 14:25:49,333 21 tiles in row 3
+DEBUG 2018-04-27 14:25:49,333 21 tiles in row 4
+DEBUG 2018-04-27 14:25:49,334 21 tiles in row 5
+DEBUG 2018-04-27 14:25:49,334 21 tiles in row 6
+DEBUG 2018-04-27 14:25:49,334 21 tiles in row 7
+DEBUG 2018-04-27 14:25:49,334 21 tiles in row 8
+DEBUG 2018-04-27 14:25:49,334 21 tiles in row 9
+DEBUG 2018-04-27 14:25:49,334 21 tiles in row 10
+DEBUG 2018-04-27 14:25:49,334 21 tiles in row 11
+DEBUG 2018-04-27 14:25:49,335 21 tiles in row 12
+DEBUG 2018-04-27 14:25:49,335 21 tiles in row 13
+DEBUG 2018-04-27 14:25:49,335 21 tiles in row 14
+DEBUG 2018-04-27 14:25:49,335 21 tiles in row 15
+DEBUG 2018-04-27 14:25:49,335 21 tiles in row 16
+DEBUG 2018-04-27 14:25:49,336 21 tiles in row 17
+DEBUG 2018-04-27 14:25:49,336 21 tiles in row 18
+DEBUG 2018-04-27 14:25:49,336 21 tiles in row 19
+DEBUG 2018-04-27 14:25:49,336 21 tiles in row 20
+DEBUG 2018-04-27 14:25:49,336 21 tiles in row 21
+DEBUG 2018-04-27 14:25:49,337 21 tiles in row 22
+DEBUG 2018-04-27 14:25:49,337 21 tiles in row 23
+DEBUG 2018-04-27 14:25:49,337 21 tiles in row 24
+DEBUG 2018-04-27 14:25:49,337 This is a divider or attribute line.
+DEBUG 2018-04-27 14:25:49,338 Level data has been read.
+INFO 2018-04-27 14:25:49,338 Cross-references successfully opened
+DEBUG 2018-04-27 14:25:49,339 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,339 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,340 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,340 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,340 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,340 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,340 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,341 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,341 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,341 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,341 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,341 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,341 0
+DEBUG 2018-04-27 14:25:49,344 1
+DEBUG 2018-04-27 14:25:49,347 2
+DEBUG 2018-04-27 14:25:49,349 3
+DEBUG 2018-04-27 14:25:49,351 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,352 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,352 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,352 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,352 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,352 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,352 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,353 20
+DEBUG 2018-04-27 14:25:49,355 21
+DEBUG 2018-04-27 14:25:49,357 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,358 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,358 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,358 100
+DEBUG 2018-04-27 14:25:49,360 101
+DEBUG 2018-04-27 14:25:49,362 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,362 105
+DEBUG 2018-04-27 14:25:49,364 106
+DEBUG 2018-04-27 14:25:49,367 107
+DEBUG 2018-04-27 14:25:49,368 108
+DEBUG 2018-04-27 14:25:49,370 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,371 110
+DEBUG 2018-04-27 14:25:49,373 111
+DEBUG 2018-04-27 14:25:49,375 112
+DEBUG 2018-04-27 14:25:49,377 113
+DEBUG 2018-04-27 14:25:49,379 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,379 120
+DEBUG 2018-04-27 14:25:49,381 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,381 130
+DEBUG 2018-04-27 14:25:49,383 131
+DEBUG 2018-04-27 14:25:49,385 132
+DEBUG 2018-04-27 14:25:49,388 133
+DEBUG 2018-04-27 14:25:49,390 Skipping comment / whitespace line.
+DEBUG 2018-04-27 14:25:49,390 140
