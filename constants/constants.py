@@ -13,3 +13,6 @@ default_edge_shadow_colour=(255, 0, 255, 255)
 default_pellet_colour=(128, 0, 128, 255)
 
 default_speed=1
+
+min_wall_id=100
+max_wall_id=199

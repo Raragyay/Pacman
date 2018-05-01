@@ -2,40 +2,47 @@
 from collections import deque
 
 from PVector import PVector
-from constants import constants
+from constants import default_speed
 
 
 class Entity:
-    def __init__(self, loc):
+    def __init__(self, loc, level):
         """
 
-        :param x: Pixel Location vertically
-        :param y: Pixel location horizontally
+        :param x: Node Location vertically
+        :param y: Node location horizontally
         """
-        self.pos = loc
-        self.speed = constants.default_speed
-        self.direc = PVector(0,self.speed)
+        self.pos = self.node_to_pixel(loc)
+        self.speed = default_speed
+        self.direc = PVector(0, self.speed)
         self.path = deque()
+        self.level = level
 
-        self.set_nearest_node(loc)
+        self.nearest_node = loc
 
-    def set_nearest_node(self, loc):
-        self.nearest_node = PVector(int((loc.x + 8) / 16), int((loc.y + 8) / 16))
+    def node_to_pixel(self, node):
+        return PVector(node.x * 16 + 8, node.y * 16 + 8)
 
-    def move(self):
-        self.pos += self.direc
+    def pixel_to_node(self):
+        return PVector(int((self.pos.x - 8) / 16), int((self.pos.y - 8) / 16))
+
+    def update(self):
+        self.move()
         if self.is_on_node():
-            if self.path:
+            if len(self.path) > 1:
                 self.path = self.path[1:]
-                self.set_direc()
             else:
                 self.update_direc()
+            self.set_direc()
 
     def is_on_node(self):
-        return self.pos.x % 16 == 0 and self.pos.y % 16 == 0
+        return (self.pos.x - 8) % 16 == 0 and (self.pos.y - 8) % 16 == 0
 
     def set_direc(self):
         self.direc = self.path[0]
 
     def update_direc(self):
         raise NotImplementedError('Do not create raw entity objects.')
+
+    def move(self):
+        self.pos += self.direc

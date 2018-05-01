@@ -14,7 +14,7 @@
 001 ghost-door wall of the ghost box
 002 pellet a normal pellet
 003 power-pellet a power pellet (makes Pac-Man invincible)
-' 004 start Pac-Man's start position
+004 start Pac-Man's start position
 
 ' 010 ghost-blinky blinky
 ' 011 ghost-pinky pinky

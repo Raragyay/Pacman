@@ -2,8 +2,10 @@
 import logging
 import os
 
+from PVector import PVector
 from constants import level_location, log_folder, log_format, cur_log_level, default_fill_colour, \
     default_edge_shadow_colour, default_pellet_colour, default_edge_light_colour
+from crossref import CrossRef
 from fruit import Fruit
 
 
@@ -20,11 +22,16 @@ class Level:
         self.fill_colour = default_fill_colour  # Cyan
         self.pellet_colour = default_pellet_colour  # White
 
+        self.tiles = {}
         self.map = {}
 
         self.pellets = 0
         self.power_pellet_blink_timer = 0
         self.fruit = Fruit()
+
+        self.cross_ref = CrossRef()
+
+        self.pacman_start = None
 
     def set_tile(self, coords, val):
         self.map[coords] = val
@@ -84,6 +91,10 @@ class Level:
                 for col in range(self.level_width):
                     self.add_tile(row_num, col, str_split_by_space[col])
                 row_num += 1
+
+        self.cross_ref.load_cross_refs(self.edge_light_colour, self.fill_colour, self.edge_shadow_colour,
+                                       self.pellet_colour)
+        self.attach_tiles()
         f.close()
 
     def write_attr(self, information):
@@ -134,14 +145,27 @@ class Level:
     def add_tile(self, row, col, tile_value):
         self.map[(row, col)] = int(tile_value)
 
-    def get_tile(self, row, col):
+    def attach_tiles(self):
+        for key, value in self.map.items():
+            tile = self.cross_ref.get_tile(value)
+            if tile.name == "start":
+                self.pacman_start = PVector(key[0], key[1]) #TODO Set to empty after initialized pacman location
+            self.tiles[key] = tile
+
+    def get_tile_val(self, row, col):
         return self.map[(row, col)]
+
+    def get_tile(self, row, col):
+        return self.tiles[(row, col)].get_surf()
 
     def width(self):
         return self.level_width
 
     def height(self):
         return self.level_height
+
+    def start_location(self):
+        return self.pacman_start
 
 
 if __name__ == '__main__':
