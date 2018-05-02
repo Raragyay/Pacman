@@ -35,6 +35,7 @@ class Level:
 
     def set_tile(self, coords, val):
         self.map[coords] = val
+        self.tiles[coords] = self.cross_ref.get_tile(val)
 
     def load_map(self, level_num):
         """
@@ -72,14 +73,14 @@ class Level:
                 status = self.write_attr(str_split_by_space)  # TODO Turn this into a function to process status
                 if status == -1:
                     logging.warning(
-                            'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
+                        'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
                 elif status > 0:
                     is_reading_level_data = not is_reading_level_data
                     if status == 1:
                         row_num = 0
             elif not is_reading_level_data:
                 logging.warning(
-                        'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
+                    'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
             else:  # This means that we are reading the level data.
                 use_line = True
 
@@ -87,9 +88,9 @@ class Level:
                 logging.debug('{} tiles in row {}'.format(len(str_split_by_space), row_num))
                 assert len(str_split_by_space) == self.level_width, \
                     'width of row {} is different from width described in file, {}'.format(
-                            len(str_split_by_space), self.level_width)
+                        len(str_split_by_space), self.level_width)
                 for col in range(self.level_width):
-                    self.add_tile(row_num, col, str_split_by_space[col])
+                    self.init_tile(row_num, col, str_split_by_space[col])
                 row_num += 1
 
         self.cross_ref.load_cross_refs(self.edge_light_colour, self.fill_colour, self.edge_shadow_colour,
@@ -142,14 +143,15 @@ class Level:
     def get_colour_vals(self):
         return self.edge_light_colour, self.fill_colour, self.edge_shadow_colour, self.pellet_colour
 
-    def add_tile(self, row, col, tile_value):
+    def init_tile(self, row, col, tile_value):
         self.map[(row, col)] = int(tile_value)
 
     def attach_tiles(self):
         for key, value in self.map.items():
             tile = self.cross_ref.get_tile(value)
             if tile.name == "start":
-                self.pacman_start = PVector(key[0], key[1]) #TODO Set to empty after initialized pacman location
+                self.pacman_start = PVector(key[0], key[1])  # TODO Set to empty after initialized pacman location
+                # self.set_tile(key,0)
             self.tiles[key] = tile
 
     def get_tile_val(self, row, col):

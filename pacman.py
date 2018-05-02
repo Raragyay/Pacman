@@ -13,6 +13,7 @@ from tile import Tile
 class Pacman(Entity):
     def __init__(self, loc: PVector, level: Level):
         super().__init__(loc, level)
+        directions=['u','d','l','r']
 
     def get_key_strokes(self, game_mode: GameMode) -> None:
         if game_mode == GameMode.NORMAL:
