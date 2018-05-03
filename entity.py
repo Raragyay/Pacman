@@ -15,7 +15,7 @@ class Entity:
         self.pos = self.node_to_pixel(loc)
         self.speed = default_speed
         self.direc = PVector(0, self.speed)
-        self.path = deque()
+        self.path = [PVector(0, self.speed)]
         self.level = level
 
         self.nearest_node = loc
@@ -26,8 +26,7 @@ class Entity:
     def pixel_to_node(self):
         return PVector(int((self.pos.x - 8) / 16), int((self.pos.y - 8) / 16))
 
-    def update(self):
-        self.move()
+    def check_node(self):
         if self.is_on_node():
             if len(self.path) > 1:
                 self.path = self.path[1:]
@@ -46,3 +45,20 @@ class Entity:
 
     def move(self):
         self.pos += self.direc
+        self.nearest_node = self.pixel_to_node()
+
+    def pixel_location(self):
+        return self.pos.x - 8, self.pos.y - 8
+
+    def direc_to(self, vec: PVector):
+        if self.nearest_node.x == vec.x:
+            if self.nearest_node.y < vec.y:
+                return PVector(0, 1)
+            else:
+                return PVector(0, -1)
+        elif self.nearest_node.y == vec.y:
+            if self.nearest_node.x < vec.x:
+                return PVector(1, 0)
+            else:
+                return PVector(-1, 0)
+        raise ValueError

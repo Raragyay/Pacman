@@ -26,10 +26,11 @@ class Game:
         self.setup()
         while True:
             self.check_quit()
-            # self.update_entities()
-            # self.draw_entities()
+            self.update_entities()
+            self.draw_entities()
             self.draw_level()
             pygame.display.flip()
+            self.clear()
             self.clock.tick(60)
 
     def setup(self):
@@ -38,7 +39,7 @@ class Game:
     def draw_level(self):
         for row in range(self.level.height()):
             for col in range(self.level.width()):
-                surf = self.level.get_tile(row, col)
+                surf = self.level.get_tile(col, row)
                 self.screen.blit(surf, (col * 16, row * 16))
 
     def check_quit(self):
@@ -49,7 +50,15 @@ class Game:
 
     def update_entities(self):
         for entity in self.entities:
-            entity.update()
+            entity.update(self.mode)
+
+    def draw_entities(self):
+        for entity in self.entities:
+            x,y=entity.pixel_location()
+            self.screen.blit(entity.surf,(x,y))
+
+    def clear(self):
+        self.screen.fill((0,0,0))
 
 
 if __name__ == '__main__':

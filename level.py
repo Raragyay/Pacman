@@ -90,7 +90,7 @@ class Level:
                     'width of row {} is different from width described in file, {}'.format(
                         len(str_split_by_space), self.level_width)
                 for col in range(self.level_width):
-                    self.init_tile(row_num, col, str_split_by_space[col])
+                    self.init_tile(col, row_num, str_split_by_space[col])
                 row_num += 1
 
         self.cross_ref.load_cross_refs(self.edge_light_colour, self.fill_colour, self.edge_shadow_colour,
@@ -143,8 +143,8 @@ class Level:
     def get_colour_vals(self):
         return self.edge_light_colour, self.fill_colour, self.edge_shadow_colour, self.pellet_colour
 
-    def init_tile(self, row, col, tile_value):
-        self.map[(row, col)] = int(tile_value)
+    def init_tile(self, col, row, tile_value):
+        self.map[(col, row)] = int(tile_value)
 
     def attach_tiles(self):
         for key, value in self.map.items():
@@ -154,11 +154,11 @@ class Level:
                 # self.set_tile(key,0)
             self.tiles[key] = tile
 
-    def get_tile_val(self, row, col):
-        return self.map[(row, col)]
+    def get_tile_val(self, col, row):
+        return self.map[(col, row)]
 
-    def get_tile(self, row, col):
-        return self.tiles[(row, col)].get_surf()
+    def get_tile(self, col, row):
+        return self.tiles[(col, row)].get_surf()
 
     def width(self):
         return self.level_width
