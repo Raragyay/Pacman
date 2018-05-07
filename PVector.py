@@ -8,6 +8,8 @@ class PVector:
     def __str__(self):
         return "A PVector (x,y): {},{}".format(self.x, self.y)
 
+    __repr__ = __str__
+
     def __add__(self, other):
         return PVector(self.x + other.x, self.y + other.y)
 

@@ -1,16 +1,14 @@
 # coding=utf-8
 import os
 import random
-from collections import deque
+
+import pygame
 
 import constants
 from PVector import PVector
-from constants import GameMode, default_speed, min_wall_id, max_wall_id
+from constants import GameMode, default_speed, max_wall_id, min_wall_id
 from entity import Entity
-import pygame
-
 from level import Level
-from tile import Tile
 
 
 class Pacman(Entity):
@@ -28,13 +26,11 @@ class Pacman(Entity):
                 self.update_path(PVector(-default_speed, 0))
             if any(keys_pressed[key] for key in [pygame.K_w, pygame.K_UP]):
                 self.update_path(PVector(0, -default_speed))
-            if any(keys_pressed[key] for key in [pygame.K_d, pygame.K_DOWN]):
+            if any(keys_pressed[key] for key in [pygame.K_s, pygame.K_DOWN]):
                 self.update_path(PVector(0, default_speed))
 
     def update_path(self, vec: PVector) -> None:
-        if len(self.path) == 0:
-            self.path = [self.direc, vec]
-        elif len(self.path) == 1:
+        if len(self.path) == 1:
             self.path.append(vec)
         else:
             self.path[1] = vec
