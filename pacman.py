@@ -6,13 +6,20 @@ import pygame
 
 import constants
 from PVector import PVector
-from constants import GameMode, default_speed, max_wall_id, min_wall_id
+from constants import GameMode, default_speed, max_wall_id, min_wall_id, PELLET_VALS
 from entity import Entity
 from level import Level
 
 
 class Pacman(Entity):
     def __init__(self, loc: PVector, level: Level):
+        """
+        The idea for the pacman object is that it will first check if it is on a turning point.
+
+        If it is on a turning point, then it will check if it can go in the direction mentioned
+        :param loc:
+        :param level:
+        """
         super().__init__(loc, level)
         self.surf = pygame.image.load(os.path.join(constants.sprite_folder, 'pacman.gif')).convert()
         # directions=['u','d','l','r']
@@ -65,7 +72,20 @@ class Pacman(Entity):
     def is_safe(self, node: PVector) -> bool:
         return not self.out_of_bounds(node) and not self.is_wall(self.level.get_tile_val(node.x, node.y))
 
+    def check_node(self):
+        if self.is_on_node():
+            self.consume_node()
+            if len(self.path) > 1 and self.is_safe(self.nearest_node + self.path[1]):
+                self.path = self.path[1:]
+                self.set_direc()
+            elif not self.is_safe(self.nearest_node + self.direc):
+                self.direc = PVector(0, 0)
+
     def update(self, game_mode):
         self.get_key_strokes(game_mode)
         self.check_node()
         self.move()
+
+    def consume_node(self):
+        if self.level.get_tile_val(self.nearest_node.x, self.nearest_node.y) in PELLET_VALS:
+            self.level.set_tile(self.nearest_node.unpack_tuple(), 0)

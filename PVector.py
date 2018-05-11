@@ -2,6 +2,10 @@
 
 class PVector:
     def __init__(self, x, y):
+        """
+        :param x: Horizontal Location or Velocity
+        :param y: Vertical Location or Velocity
+        """
         self.x = x
         self.y = y
 
@@ -15,3 +19,6 @@ class PVector:
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
+
+    def unpack_tuple(self):
+        return self.x,self.y

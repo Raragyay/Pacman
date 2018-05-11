@@ -54,7 +54,7 @@ class Game:
 
     def draw_entities(self):
         for entity in self.entities:
-            x,y=entity.pixel_location()
+            x,y=entity.top_left()
             self.screen.blit(entity.surf,(x,y))
 
     def clear(self):

@@ -20,7 +20,10 @@ class Entity:
         return PVector(node.x * 16 + 8, node.y * 16 + 8)
 
     def pixel_to_node(self):
-        return PVector(int((self.pos.x - 8) / 16), int((self.pos.y - 8) / 16))
+        return PVector(int(self.pos.x / 16), int(self.pos.y / 16))
+
+    # get the middle somehow
+    # ex 16-31 should all return 1
 
     def check_node(self):
         if self.is_on_node():  # If we need to check our direction
@@ -45,7 +48,7 @@ class Entity:
         self.pos += self.direc
         self.nearest_node = self.pixel_to_node()
 
-    def pixel_location(self):
+    def top_left(self):
         return self.pos.x - 8, self.pos.y - 8
 
     def direc_to(self, pos: PVector):
@@ -60,4 +63,4 @@ class Entity:
             else:
                 return PVector(-1, 0)
         raise ValueError(
-            "Position {} is not orthogonally adjacent to entity position: {}".format(pos, self.nearest_node))
+                "Position {} is not orthogonally adjacent to entity position: {}".format(pos, self.nearest_node))

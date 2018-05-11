@@ -41,6 +41,7 @@ class Level:
         """
         Resets the level class and loads a new map
         :param level_num: The level number
+        #TODO modularify
         """
         self.map = {}  # Reset map
         self.pellets = 0  # Reset Pellet Number
@@ -151,7 +152,8 @@ class Level:
             tile = self.cross_ref.get_tile(value)
             if tile.name == "start":
                 self.pacman_start = PVector(key[0], key[1])  # TODO Set to empty after initialized pacman location
-                # self.set_tile(key,0)
+                self.set_tile(key,0)
+                continue
             self.tiles[key] = tile
 
     def get_tile_val(self, col, row):
