@@ -4,7 +4,7 @@ import os
 
 from PVector import PVector
 from constants import level_location, log_folder, log_format, cur_log_level, default_fill_colour, \
-    default_edge_shadow_colour, default_pellet_colour, default_edge_light_colour
+    default_edge_shadow_colour, default_pellet_colour, default_edge_light_colour, PELLET_VALS, default_bg_colour
 from crossref import CrossRef
 from fruit import Fruit
 
@@ -21,6 +21,7 @@ class Level:
         self.edge_shadow_colour = default_edge_shadow_colour  # Orange
         self.fill_colour = default_fill_colour  # Cyan
         self.pellet_colour = default_pellet_colour  # White
+        self.bg_colour = default_bg_colour
 
         self.tiles = {}
         self.map = {}
@@ -74,14 +75,14 @@ class Level:
                 status = self.write_attr(str_split_by_space)  # TODO Turn this into a function to process status
                 if status == -1:
                     logging.warning(
-                        'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
+                            'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
                 elif status > 0:
                     is_reading_level_data = not is_reading_level_data
                     if status == 1:
                         row_num = 0
             elif not is_reading_level_data:
                 logging.warning(
-                    'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
+                        'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
             else:  # This means that we are reading the level data.
                 use_line = True
 
@@ -89,7 +90,7 @@ class Level:
                 logging.debug('{} tiles in row {}'.format(len(str_split_by_space), row_num))
                 assert len(str_split_by_space) == self.level_width, \
                     'width of row {} is different from width described in file, {}'.format(
-                        len(str_split_by_space), self.level_width)
+                            len(str_split_by_space), self.level_width)
                 for col in range(self.level_width):
                     self.init_tile(col, row_num, str_split_by_space[col])
                 row_num += 1
@@ -127,6 +128,8 @@ class Level:
                 self.fill_colour = colour_tup
             elif attr == 'pelletcolour':
                 self.pellet_colour = colour_tup
+            elif attr == 'bgcolour':
+                self.bg_colour = colour_tup
             else:
                 return -1  # An error has occurred
         elif attr == 'fruittype':
@@ -152,9 +155,15 @@ class Level:
             tile = self.cross_ref.get_tile(value)
             if tile.name == "start":
                 self.pacman_start = PVector(key[0], key[1])  # TODO Set to empty after initialized pacman location
-                self.set_tile(key,0)
+                self.set_tile(key, 0)
                 continue
             self.tiles[key] = tile
+
+    def won(self):
+        for tile_val in self.map.values():
+            if tile_val in PELLET_VALS:
+                return False
+        return True
 
     def get_tile_val(self, col, row):
         return self.map[(col, row)]

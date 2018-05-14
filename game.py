@@ -26,12 +26,17 @@ class Game:
         self.setup()
         while True:
             self.check_quit()
-            self.update_entities()
+            if self.mode == GameMode.NORMAL:
+                self.run_normal()
             self.draw_entities()
             self.draw_level()
             pygame.display.flip()
             self.clear()
             self.clock.tick(60)
+
+    def run_normal(self):
+        self.update_entities()
+        self.check_win()  # TODO Maybe move this somewhere else
 
     def setup(self):
         self.entities.append(Pacman(self.level.start_location(), self.level))
@@ -47,6 +52,8 @@ class Game:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+            #To force win
+            #if event.type=pygame.
 
     def update_entities(self):
         for entity in self.entities:
@@ -54,11 +61,17 @@ class Game:
 
     def draw_entities(self):
         for entity in self.entities:
-            x,y=entity.top_left()
-            self.screen.blit(entity.surf,(x,y))
+            if self.mode==GameMode.NORMAL:
+                entity.update_surf()
+            x, y = entity.top_left()
+            self.screen.blit(entity.surf, (x, y))
 
     def clear(self):
-        self.screen.fill((0,0,0))
+        self.screen.fill(self.level.bg_colour)
+
+    def check_win(self):
+        if self.level.won():
+            self.mode = GameMode.WAIT_AFTER_FINISH
 
 
 if __name__ == '__main__':

@@ -22,7 +22,20 @@ class Pacman(Entity):
         """
         super().__init__(loc, level)
         self.surf = pygame.image.load(os.path.join(constants.sprite_folder, 'pacman.gif')).convert()
-        # directions=['u','d','l','r']
+        self.anim_num = 0
+        self.up_surf = [self.surf]
+        self.down_surf = [self.surf]
+        self.left_surf = [self.surf]
+        self.right_surf = [self.surf]
+        for frame in range(1, 9):
+            self.up_surf.append(
+                    pygame.image.load(os.path.join(constants.sprite_folder, 'pacman-u {}.gif'.format(frame))).convert())
+            self.down_surf.append(
+                    pygame.image.load(os.path.join(constants.sprite_folder, 'pacman-d {}.gif'.format(frame))).convert())
+            self.left_surf.append(
+                    pygame.image.load(os.path.join(constants.sprite_folder, 'pacman-l {}.gif'.format(frame))).convert())
+            self.right_surf.append(
+                    pygame.image.load(os.path.join(constants.sprite_folder, 'pacman-r {}.gif'.format(frame))).convert())
 
     def get_key_strokes(self, game_mode: GameMode) -> None:
         if game_mode == GameMode.NORMAL:  # TODO only randomize if it has no moves
@@ -89,3 +102,23 @@ class Pacman(Entity):
     def consume_node(self):
         if self.level.get_tile_val(self.nearest_node.x, self.nearest_node.y) in PELLET_VALS:
             self.level.set_tile(self.nearest_node.unpack_tuple(), 0)
+
+    def update_surf(self):
+        self.increment_frame_num()
+        if self.direc == PVector(self.speed, 0):
+            self.surf = self.right_surf[self.anim_num]
+            return
+        if self.direc == PVector(-self.speed, 0):
+            self.surf = self.left_surf[self.anim_num]
+            return
+        if self.direc == PVector(0, self.speed):
+            self.surf = self.down_surf[self.anim_num]
+            return
+        if self.direc == PVector(0, -self.speed):
+            self.surf = self.up_surf[self.anim_num]
+            return
+
+    def increment_frame_num(self):
+        self.anim_num += 1
+        if self.anim_num > 8:
+            self.anim_num = 0
