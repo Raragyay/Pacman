@@ -4,6 +4,7 @@ import pygame
 from constants import GameMode
 from level import Level
 from pacman import Pacman
+from ghosts.ghost import Ghost
 
 
 class Game:
@@ -39,6 +40,7 @@ class Game:
         self.check_win()  # TODO Maybe move this somewhere else
 
     def setup(self):
+        Ghost.load_surfs()
         self.entities.append(Pacman(self.level.start_location(), self.level))
 
     def draw_level(self):
