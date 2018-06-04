@@ -7,4 +7,4 @@ from level import Level
 class Blinky(Ghost):
     def __init__(self,loc:PVector,level:Level):
         super().__init__(loc,level)
-        self.surf=
+        self.convert_surfaces((255, 128, 255, 255))

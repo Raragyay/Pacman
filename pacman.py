@@ -22,7 +22,6 @@ class Pacman(Entity):
         """
         super().__init__(loc, level)
         self.surf = pygame.image.load(os.path.join(constants.sprite_folder, 'pacman.gif')).convert()
-        self.anim_num = 0
         self.up_surf = [self.surf]
         self.down_surf = [self.surf]
         self.left_surf = [self.surf]
@@ -36,18 +35,18 @@ class Pacman(Entity):
                     pygame.image.load(os.path.join(constants.sprite_folder, 'pacman-l {}.gif'.format(frame))).convert())
             self.right_surf.append(
                     pygame.image.load(os.path.join(constants.sprite_folder, 'pacman-r {}.gif'.format(frame))).convert())
+        self.max_anim_num=8
 
-    def get_key_strokes(self, game_mode: GameMode) -> None:
-        if game_mode == GameMode.NORMAL:  # TODO only randomize if it has no moves
-            keys_pressed = pygame.key.get_pressed()
-            if any(keys_pressed[key] for key in [pygame.K_d, pygame.K_RIGHT]):
-                self.update_path(PVector(default_speed, 0))
-            if any(keys_pressed[key] for key in [pygame.K_a, pygame.K_LEFT]):
-                self.update_path(PVector(-default_speed, 0))
-            if any(keys_pressed[key] for key in [pygame.K_w, pygame.K_UP]):
-                self.update_path(PVector(0, -default_speed))
-            if any(keys_pressed[key] for key in [pygame.K_s, pygame.K_DOWN]):
-                self.update_path(PVector(0, default_speed))
+    def get_key_strokes(self) -> None:
+        keys_pressed = pygame.key.get_pressed()
+        if any(keys_pressed[key] for key in [pygame.K_d, pygame.K_RIGHT]):
+            self.update_path(PVector(default_speed, 0))
+        if any(keys_pressed[key] for key in [pygame.K_a, pygame.K_LEFT]):
+            self.update_path(PVector(-default_speed, 0))
+        if any(keys_pressed[key] for key in [pygame.K_w, pygame.K_UP]):
+            self.update_path(PVector(0, -default_speed))
+        if any(keys_pressed[key] for key in [pygame.K_s, pygame.K_DOWN]):
+            self.update_path(PVector(0, default_speed))
 
     def update_path(self, vec: PVector) -> None:
         if len(self.path) == 1:
@@ -56,7 +55,7 @@ class Pacman(Entity):
             self.path[1] = vec
 
     def update_direc(self):
-        if self.is_safe(self.nearest_node + self.direc):
+        if self.level.is_safe(self.nearest_node + self.direc):
             self.path[0] = self.direc
             return
         self.path[0] = random.choice(self.find_valid_adj_nodes())
@@ -65,15 +64,9 @@ class Pacman(Entity):
         node_list = []
         # Try Right Side
         for node in self.get_adj_nodes():
-            if self.is_safe(node):
+            if self.level.is_safe(node):
                 node_list.append(self.direc_to(node))
         return node_list
-
-    def out_of_bounds(self, vec: PVector) -> bool:
-        return vec.x < 0 or vec.x > self.level.width() - 1 or vec.y < 0 or vec.y > self.level.height() - 1
-
-    def is_wall(self, tile: int):
-        return min_wall_id <= tile < max_wall_id
 
     def get_adj_nodes(self):
         return [
@@ -82,26 +75,24 @@ class Pacman(Entity):
             self.nearest_node + PVector(-1, 0),
             self.nearest_node + PVector(0, -1)]
 
-    def is_safe(self, node: PVector) -> bool:
-        return not self.out_of_bounds(node) and not self.is_wall(self.level.get_tile_val(node.x, node.y))
-
     def check_node(self):
         if self.is_on_node():
             self.consume_node()
-            if len(self.path) > 1 and self.is_safe(self.nearest_node + self.path[1]):
+            if len(self.path) > 1 and self.level.is_safe(self.nearest_node + self.path[1]):
                 self.path = self.path[1:]
                 self.set_direc()
-            elif not self.is_safe(self.nearest_node + self.direc):
+            elif not self.level.is_safe(self.nearest_node + self.direc):
                 self.direc = PVector(0, 0)
 
     def update(self, game_mode):
-        self.get_key_strokes(game_mode)
-        self.check_node()
-        self.move()
+        if game_mode == GameMode.NORMAL:
+            self.get_key_strokes()
+            self.check_node()
+            self.move()
 
     def consume_node(self):
-        if self.level.get_tile_val(self.nearest_node.x, self.nearest_node.y) in PELLET_VALS:
-            self.level.set_tile(self.nearest_node.unpack_tuple(), 0)
+        if self.level.get_tile_val(self.nearest_node) in PELLET_VALS:
+            self.level.set_tile(self.nearest_node, 0)
 
     def update_surf(self):
         self.increment_frame_num()
@@ -117,8 +108,3 @@ class Pacman(Entity):
         if self.direc == PVector(0, -self.speed):
             self.surf = self.up_surf[self.anim_num]
             return
-
-    def increment_frame_num(self):
-        self.anim_num += 1
-        if self.anim_num > 8:
-            self.anim_num = 0

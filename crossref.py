@@ -9,6 +9,7 @@ from tile import Tile
 class CrossRef:
     def __init__(self):
         self.id_to_img = {}
+        self.wall_binary_to_img={}
 
     def load_cross_refs(self, edge_light_colour, fill_colour, edge_shadow_colour, pellet_colour):
         logging.basicConfig(filename=os.path.join(log_folder, 'cross_refs.log'),
@@ -31,6 +32,8 @@ class CrossRef:
 
             if use_line:
                 tile_id = int(str_split_by_space[0])
+                if len(str_split_by_space[0])==4:
+                    tile_id = str_split_by_space[0]
                 logging.debug(tile_id)
                 tile_name = str_split_by_space[1]
                 tile_desc = ' '.join(str_split_by_space[2:])

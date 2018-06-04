@@ -1,7 +1,9 @@
 # coding=utf-8
 import pygame
 
+from PVector import PVector
 from constants import GameMode
+from ghosts.blinky import Blinky
 from level import Level
 from pacman import Pacman
 from ghosts.ghost import Ghost
@@ -42,11 +44,12 @@ class Game:
     def setup(self):
         Ghost.load_surfs()
         self.entities.append(Pacman(self.level.start_location(), self.level))
+        self.entities.append(Blinky(PVector(2, 2), self.level))  # TODO make list of ghosts
 
     def draw_level(self):
         for row in range(self.level.height()):
             for col in range(self.level.width()):
-                surf = self.level.get_tile(col, row)
+                surf = self.level.get_tile(PVector(col, row))
                 self.screen.blit(surf, (col * 16, row * 16))
 
     def check_quit(self):
@@ -54,8 +57,8 @@ class Game:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-            #To force win
-            #if event.type=pygame.
+            # To force win
+            # if event.type=pygame.
 
     def update_entities(self):
         for entity in self.entities:
@@ -63,7 +66,7 @@ class Game:
 
     def draw_entities(self):
         for entity in self.entities:
-            if self.mode==GameMode.NORMAL:
+            if self.mode == GameMode.NORMAL:
                 entity.update_surf()
             x, y = entity.top_left()
             self.screen.blit(entity.surf, (x, y))

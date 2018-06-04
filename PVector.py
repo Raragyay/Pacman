@@ -17,8 +17,14 @@ class PVector:
     def __add__(self, other):
         return PVector(self.x + other.x, self.y + other.y)
 
+    def __sub__(self, other):
+        return PVector(self.x - other.x, self.y - other.y)
+
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
+    def __hash__(self):
+        return hash(str(self))
+
     def unpack_tuple(self):
-        return self.x,self.y
+        return self.x, self.y

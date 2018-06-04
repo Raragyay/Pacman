@@ -26,24 +26,26 @@
 ' 022 show-logo draws the logo
 ' 023 high-scores draws a high-score list
 
-100 wall-straight-h a horizontal wall
-101 wall-straight-v a vertical wall
+100 blank blank tile
 
-105 wall-corner-ll lower-left corner of a wall
-106 wall-corner-lr lower-right corner of a wall
-107 wall-corner-ul upper-left corner of a wall
-108 wall-corner-ur upper-right corner of a wall
+1100 wall-straight-h a horizontal wall
+0011 wall-straight-v a vertical wall
 
-110 wall-end-b bottom end of a wall
-111 wall-end-l left end of a wall
-112 wall-end-r right end of a wall
-113 wall-end-t top end of a wall
+0110 wall-corner-ll lower-left corner of a wall
+1010 wall-corner-lr lower-right corner of a wall
+0101 wall-corner-ul upper-left corner of a wall
+1001 wall-corner-ur upper-right corner of a wall
 
-120 wall-nub a one-tile "nub" wall
+0010 wall-end-b bottom end of a wall
+0100 wall-end-l left end of a wall
+1000 wall-end-r right end of a wall
+0001 wall-end-t top end of a wall
 
-130 wall-t-bottom a "T"-shaped wall, bottom-orientation
-131 wall-t-left a "T"-shaped wall, left-orientation
-132 wall-t-right a "T"-shaped wall, right-orientation
-133 wall-t-top a "T"-shaped wall, top-orientation
+0000 wall-nub a one-tile "nub" wall
 
-140 wall-x a four-way wall
+1101 wall-t-bottom a "T"-shaped wall, bottom-orientation
+1011 wall-t-left a "T"-shaped wall, left-orientation
+0111 wall-t-right a "T"-shaped wall, right-orientation
+1110 wall-t-top a "T"-shaped wall, top-orientation
+
+1111 wall-x a four-way wall

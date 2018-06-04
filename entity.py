@@ -15,6 +15,8 @@ class Entity:
         self.level = level
 
         self.nearest_node = loc
+        self.max_anim_num = None
+        self.anim_num = 0
 
     def node_to_pixel(self, node):
         return PVector(node.x * 16 + 8, node.y * 16 + 8)
@@ -64,3 +66,15 @@ class Entity:
                 return PVector(-1, 0)
         raise ValueError(
                 "Position {} is not orthogonally adjacent to entity position: {}".format(pos, self.nearest_node))
+
+    def update_surf(self):
+        raise NotImplementedError('Do not create raw entity objects.')
+
+    def increment_frame_num(self):
+        self.anim_num += 1
+        if self.anim_num > self.max_anim_num:
+            self.anim_num = 0
+
+
+    def update(self,game_mode):
+        raise NotImplementedError('Do not create raw entity objects.')
