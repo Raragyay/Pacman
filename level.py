@@ -5,9 +5,10 @@ import os
 from PVector import PVector
 from constants import level_location, log_folder, log_format, cur_log_level, default_fill_colour, \
     default_edge_shadow_colour, default_pellet_colour, default_edge_light_colour, PELLET_VALS, default_bg_colour, \
-    ACCESSIBLE_TILES, WALL_VAL
+    ACCESSIBLE_TILES, WALL_VAL, TELEPORT_TILES
 from crossref import CrossRef
 from fruit import Fruit
+from tile import Tile
 
 
 class Level:
@@ -35,6 +36,10 @@ class Level:
         self.cross_ref = CrossRef()
 
         self.pacman_start = None
+        self.blinky_start = None
+        self.pinky_start = None
+        self.clyde_start = None
+        self.inky_start = None
 
     def setup(self):
         pass
@@ -50,8 +55,7 @@ class Level:
         :param level_num: The level number
         #TODO modularify
         """
-        self.tile_vals = {}  # Reset map
-        self.pellets = 0  # Reset Pellet Number
+        self.reset()
 
         f = open(os.path.join(level_location, r'level_' + str(level_num) + '.txt'), 'r')
         logging.basicConfig(filename=os.path.join(log_folder, 'level_creation.log'),
@@ -104,6 +108,7 @@ class Level:
                                        self.pellet_colour)
         self.attach_tiles()
         f.close()
+        self.assert_start_positions()
 
     def write_attr(self, information):
         """
@@ -157,18 +162,37 @@ class Level:
 
     def attach_tiles(self):
         for key, value in self.tile_vals.items():
-            tile = self.cross_ref.get_tile(int(value))
+            tile = self.cross_ref.get_tile(int(value)).copy()
             if self.accessible(value):  # Build edges if it is something that the ghosts or pacman will pass through
                 edges = self.get_surrounding_accessibles(key)
                 self.edges[key] = edges
             if value == WALL_VAL:
                 is_wall_around = self.get_wall_binary(key)
                 tile = self.cross_ref.get_tile(is_wall_around)
+            if tile.teleport():
+                teleport_to_tile = self.calc_teleport(key)
+                tile.teleport_to_tile = teleport_to_tile
+                self.edges[key].add(teleport_to_tile)
             if tile.name == "start":
                 self.pacman_start = key  # TODO Set to empty after initialized pacman location
                 self.set_tile(key, 0)
                 continue
+            if tile.name == 'ghost-blinky':
+                self.blinky_start = key
+                self.set_tile(key, 0)
+                continue
             self.tiles[key] = tile
+
+    def calc_teleport(self, node: PVector) -> PVector:
+        assert node.x == 0 or node.x == self.level_width - 1 or node.y == 0 or node.y == self.level_height - 1
+        if node.x == 0:
+            return PVector(self.level_width - 1, node.y)
+        if node.x == self.level_width - 1:
+            return PVector(0, node.y)
+        if node.y == 0:
+            return PVector(node.x, self.level_height - 1)
+        if node.y == self.level_height - 1:
+            return PVector(node.x, 0)
 
     def get_surrounding_accessibles(self, node: PVector) -> set:
         safe_nodes = set()
@@ -228,11 +252,21 @@ class Level:
                 return False
         return True
 
+    def assert_start_positions(self):
+        assert self.pacman_start is not None, "No start position for Pacman found."
+        assert self.blinky_start is not None, "No start position for Blinky found."
+        # assert self.pinky_start is not None, "No start position for Pinky found."
+        # assert self.clyde_start is not None, "No start position for Clyde found."
+        # assert self.inky_start is not None, "No start position for Inky found."
+
     def get_tile_val(self, node):
         return self.tile_vals[node]
 
-    def get_tile(self, node):
+    def get_tile_surf(self, node):
         return self.tiles[node].get_surf()
+
+    def get_tile(self, node) -> Tile:
+        return self.tiles[node]
 
     def width(self):
         return self.level_width
@@ -242,6 +276,17 @@ class Level:
 
     def start_location(self):
         return self.pacman_start
+
+    def reset(self):
+        self.tile_vals = {}  # Reset map
+        self.tiles = {}
+        self.edges = {}
+        self.pellets = 0  # Reset Pellet Number
+        self.pacman_start = None
+        self.blinky_start = None
+        self.pinky_start = None
+        self.clyde_start = None
+        self.inky_start = None
 
 
 if __name__ == '__main__':

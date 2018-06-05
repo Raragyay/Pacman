@@ -5,8 +5,9 @@ from constants.point_type import PointType
 
 log_format = '%(levelname)s %(asctime)s %(message)s'
 cur_log_level = logging.DEBUG
-NO_GIF_SURFACE = {23}
+NO_GIF_SURFACE = {23, 10}
 PELLET_VALS = {2, 3}
+TELEPORT_TILES = {20, 21}
 ACCESSIBLE_TILES = {0, 2, 3, 20, 21}
 WALL_VAL = 100
 

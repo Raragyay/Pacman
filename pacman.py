@@ -77,6 +77,7 @@ class Pacman(Entity):
 
     def check_node(self):
         if self.is_on_node():
+            self.check_teleport()
             self.consume_node()
             if len(self.path) > 1 and self.level.is_safe(self.nearest_node + self.path[1]):
                 self.path = self.path[1:]

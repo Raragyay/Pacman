@@ -1,10 +1,14 @@
 # coding=utf-8
+import logging
 
 from PVector import PVector
 from constants import default_speed
+from level import Level
 
 
 class Entity:
+    level: Level
+
     def __init__(self, loc, level):
         """
         """
@@ -26,9 +30,11 @@ class Entity:
 
     # get the middle somehow
     # ex 16-31 should all return 1
+    # done
 
     def check_node(self):
         if self.is_on_node():  # If we need to check our direction
+            self.check_teleport()
             if len(self.path) > 1:  # Then if we already have our next direction set
                 self.path = self.path[1:]
                 # We'll take out our original direction, and set_direc will update our current direction
@@ -75,6 +81,10 @@ class Entity:
         if self.anim_num > self.max_anim_num:
             self.anim_num = 0
 
-
-    def update(self,game_mode):
+    def update(self, game_mode):
         raise NotImplementedError('Do not create raw entity objects.')
+
+    def check_teleport(self):
+        if self.level.get_tile(self.nearest_node).teleport():
+            self.nearest_node = self.level.get_tile(self.nearest_node).teleport_to_tile
+            self.pos = self.node_to_pixel(self.nearest_node)

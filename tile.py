@@ -13,6 +13,8 @@ class Tile:
         self.desc = desc
         # self.point_type = constants.PointType(id)
         self.surface = None
+        self.is_teleport = False
+        self.teleport_to_tile = None
 
     def load_surface(self, edge_light_colour=(0, 0, 0, 0), fill_colour=(0, 0, 0, 0), edge_shadow_colour=(0, 0, 0, 0),
                      pellet_colour=(0, 0, 0, 0), ghost_colour=(0, 0, 0, 0), gif_location=constants.tile_folder):
@@ -22,8 +24,11 @@ class Tile:
             self.surface = pygame.Surface((16, 16))
             return
 
+        if self.id in constants.TELEPORT_TILES:
+            self.is_teleport = True
+
         self.surface = pygame.image.load(
-            os.path.join(gif_location, self.name + '.gif')).convert()  # change default file location
+                os.path.join(gif_location, self.name + '.gif')).convert()  # change default file location
         for y in range(16):
             for x in range(16):
                 if self.surface.get_at((x, y)) == constants.default_edge_light_colour:
@@ -43,4 +48,9 @@ class Tile:
     def copy(self):
         new_tile = Tile(self.id, self.name, self.desc)
         new_tile.surface = self.surface
+        new_tile.teleport_to_tile = self.teleport_to_tile
+        new_tile.is_teleport = self.is_teleport
         return new_tile
+
+    def teleport(self):
+        return self.is_teleport

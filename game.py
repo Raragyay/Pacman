@@ -44,12 +44,12 @@ class Game:
     def setup(self):
         Ghost.load_surfs()
         self.entities.append(Pacman(self.level.start_location(), self.level))
-        self.entities.append(Blinky(PVector(2, 2), self.level))  # TODO make list of ghosts
+        self.entities.append(Blinky(self.level.blinky_start, self.level))  # TODO make list of ghosts
 
     def draw_level(self):
         for row in range(self.level.height()):
             for col in range(self.level.width()):
-                surf = self.level.get_tile(PVector(col, row))
+                surf = self.level.get_tile_surf(PVector(col, row))
                 self.screen.blit(surf, (col * 16, row * 16))
 
     def check_quit(self):

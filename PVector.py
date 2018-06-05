@@ -26,5 +26,5 @@ class PVector:
     def __hash__(self):
         return hash(str(self))
 
-    def unpack_tuple(self):
-        return self.x, self.y
+    def direc_to(self, other):
+        return other - self
