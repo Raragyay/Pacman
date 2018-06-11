@@ -1,5 +1,4 @@
 # coding=utf-8
-import logging
 
 from PVector import PVector
 from constants import default_speed
@@ -8,14 +7,14 @@ from level import Level
 
 class Entity:
     level: Level
+    nearest_node: PVector
 
     def __init__(self, loc, level):
         """
         """
         self.pos = self.node_to_pixel(loc)
         self.speed = default_speed
-        self.direc = PVector(self.speed, 0)
-        self.path = [self.direc]
+        self.direc = PVector(0, 0)
         self.level = level
 
         self.nearest_node = loc
@@ -77,6 +76,8 @@ class Entity:
         raise NotImplementedError('Do not create raw entity objects.')
 
     def increment_frame_num(self):
+        if self.direc == PVector(0, 0):
+            return
         self.anim_num += 1
         if self.anim_num > self.max_anim_num:
             self.anim_num = 0
@@ -88,3 +89,10 @@ class Entity:
         if self.level.get_tile(self.nearest_node).teleport():
             self.nearest_node = self.level.get_tile(self.nearest_node).teleport_to_tile
             self.pos = self.node_to_pixel(self.nearest_node)
+
+    def get_adj_nodes(self):
+        return [
+            self.nearest_node + PVector(1, 0),
+            self.nearest_node + PVector(0, 1),
+            self.nearest_node + PVector(-1, 0),
+            self.nearest_node + PVector(0, -1)]

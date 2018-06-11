@@ -5,7 +5,7 @@ import os
 from PVector import PVector
 from constants import level_location, log_folder, log_format, cur_log_level, default_fill_colour, \
     default_edge_shadow_colour, default_pellet_colour, default_edge_light_colour, PELLET_VALS, default_bg_colour, \
-    ACCESSIBLE_TILES, WALL_VAL, TELEPORT_TILES
+    ACCESSIBLE_TILES, WALL_VAL
 from crossref import CrossRef
 from fruit import Fruit
 from tile import Tile
@@ -40,6 +40,7 @@ class Level:
         self.pinky_start = None
         self.clyde_start = None
         self.inky_start = None
+        self.ghost_door = None
 
     def setup(self):
         pass
@@ -109,6 +110,7 @@ class Level:
         self.attach_tiles()
         f.close()
         self.assert_start_positions()
+        print(len(self.edges[self.ghost_door]))
 
     def write_attr(self, information):
         """
@@ -163,9 +165,9 @@ class Level:
     def attach_tiles(self):
         for key, value in self.tile_vals.items():
             tile = self.cross_ref.get_tile(int(value)).copy()
-            if self.accessible(value):  # Build edges if it is something that the ghosts or pacman will pass through
-                edges = self.get_surrounding_accessibles(key)
-                self.edges[key] = edges
+            if self.accessible(value):
+                self.build_edges(key)
+                # Build edges if it is something that the ghosts or pacman will pass through
             if value == WALL_VAL:
                 is_wall_around = self.get_wall_binary(key)
                 tile = self.cross_ref.get_tile(is_wall_around)
@@ -173,15 +175,40 @@ class Level:
                 teleport_to_tile = self.calc_teleport(key)
                 tile.teleport_to_tile = teleport_to_tile
                 self.edges[key].add(teleport_to_tile)
+            if tile.name == 'ghost-door':
+                self.build_edges(key)
+                self.ghost_door = key
             if tile.name == "start":
-                self.pacman_start = key  # TODO Set to empty after initialized pacman location
+                self.pacman_start = key
                 self.set_tile(key, 0)
+                self.build_edges(key)
                 continue
             if tile.name == 'ghost-blinky':
                 self.blinky_start = key
                 self.set_tile(key, 0)
+                self.build_edges(key)
+                continue
+            if tile.name == 'ghost-pinky':
+                self.pinky_start = key
+                self.set_tile(key, 0)
+                self.build_edges(key)
+                continue
+            if tile.name == 'ghost-inky':
+                self.inky_start = key
+                self.set_tile(key, 0)
+                self.build_edges(key)
+                continue
+            if tile.name == 'ghost-clyde':
+                self.clyde_start = key
+                self.set_tile(key, 0)
+                self.build_edges(key)
                 continue
             self.tiles[key] = tile
+        self.edges[self.ghost_door] -= {self.inky_start, self.pinky_start, self.clyde_start}
+
+    def build_edges(self, node: PVector):
+        edges = self.get_surrounding_accessibles(node)
+        self.edges[node] = edges
 
     def calc_teleport(self, node: PVector) -> PVector:
         assert node.x == 0 or node.x == self.level_width - 1 or node.y == 0 or node.y == self.level_height - 1
@@ -253,9 +280,10 @@ class Level:
         return True
 
     def assert_start_positions(self):
+        assert self.ghost_door is not None, "No ghost door found."
         assert self.pacman_start is not None, "No start position for Pacman found."
         assert self.blinky_start is not None, "No start position for Blinky found."
-        # assert self.pinky_start is not None, "No start position for Pinky found."
+        assert self.pinky_start is not None, "No start position for Pinky found."
         # assert self.clyde_start is not None, "No start position for Clyde found."
         # assert self.inky_start is not None, "No start position for Inky found."
 

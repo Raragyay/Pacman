@@ -17,9 +17,9 @@
 004 start Pac-Man's start position
 
 010 ghost-blinky blinky
-' 011 ghost-pinky pinky
-' 012 ghost-inky inky
-' 013 ghost-clyde clyde
+011 ghost-pinky pinky
+012 ghost-inky inky
+013 ghost-clyde clyde
 
 020 door-h horizontal door (teleport to other side of maze)
 021 door-v vertical door (teleport to other side of maze)

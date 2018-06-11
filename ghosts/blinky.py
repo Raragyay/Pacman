@@ -1,14 +1,15 @@
 # coding=utf-8
-from PVector import PVector
 from ghosts.ghost import Ghost
 from level import Level
+from pacman import Pacman
 
 
 class Blinky(Ghost):
-    def __init__(self, loc: PVector, level: Level):
-        super().__init__(loc, level)
-        self.convert_surfaces((255, 128, 255, 255))
+    def __init__(self, level: Level, pacman: Pacman):
+        super().__init__(level.blinky_start, level, pacman)
+        self.convert_surfaces((255, 0, 0, 255))
 
     def update_direc(self):
         # Ghost chases pacman current location
-        pass
+        self.direc = self.closest_direction(self.pacman.nearest_node)
+        # self.path = self.bfs(self.pacman.nearest_node)

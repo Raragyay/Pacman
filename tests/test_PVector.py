@@ -24,3 +24,8 @@ class TestPVector(TestCase):
 
         added_vec = PVector(20, 20)
         assert vec + PVector(5, 4) == added_vec
+
+    def test_direc_to(self):
+        vec1 = PVector(10, 10)
+        vec2 = PVector(11, 10)
+        assert vec1.direc_to(vec2) == PVector(1, 0)

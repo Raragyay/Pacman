@@ -6,7 +6,7 @@ import pygame
 
 import constants
 from PVector import PVector
-from constants import GameMode, default_speed, max_wall_id, min_wall_id, PELLET_VALS
+from constants import GameMode, default_speed, PELLET_VALS, max_cut
 from entity import Entity
 from level import Level
 
@@ -35,26 +35,76 @@ class Pacman(Entity):
                     pygame.image.load(os.path.join(constants.sprite_folder, 'pacman-l {}.gif'.format(frame))).convert())
             self.right_surf.append(
                     pygame.image.load(os.path.join(constants.sprite_folder, 'pacman-r {}.gif'.format(frame))).convert())
-        self.max_anim_num=8
+        self.max_anim_num = 8
+
+        self.diagonal_move = self.direc
+        self.cut_corner = False
 
     def get_key_strokes(self) -> None:
+        # for event in pygame.event.get():
+        #     if event.type==pygame.KEYDOWN:
+        #         if event.key in [pygame.K_d, pygame.K_RIGHT]:
+        #             self.try_to_turn(PVector(default_speed, 0))
+        #         if event.key in  [pygame.K_a, pygame.K_LEFT]:
+        #             self.try_to_turn(PVector(-default_speed, 0))
+        #         if event.key in  [pygame.K_w, pygame.K_UP]:
+        #             self.try_to_turn(PVector(0, -default_speed))
+        #         if event.key in  [pygame.K_s, pygame.K_DOWN]:
+        #             self.try_to_turn(PVector(0, default_speed))
         keys_pressed = pygame.key.get_pressed()
         if any(keys_pressed[key] for key in [pygame.K_d, pygame.K_RIGHT]):
-            self.update_path(PVector(default_speed, 0))
+            self.try_to_turn(PVector(default_speed, 0))
+            return
         if any(keys_pressed[key] for key in [pygame.K_a, pygame.K_LEFT]):
-            self.update_path(PVector(-default_speed, 0))
+            self.try_to_turn(PVector(-default_speed, 0))
+            return
         if any(keys_pressed[key] for key in [pygame.K_w, pygame.K_UP]):
-            self.update_path(PVector(0, -default_speed))
+            self.try_to_turn(PVector(0, -default_speed))
+            return
         if any(keys_pressed[key] for key in [pygame.K_s, pygame.K_DOWN]):
-            self.update_path(PVector(0, default_speed))
+            self.try_to_turn(PVector(0, default_speed))
+            return
 
-    def update_path(self, vec: PVector) -> None:
+    def update_path(self, vec: PVector) -> None:  # OUTDATED
         if len(self.path) == 1:
             self.path.append(vec)
         else:
             self.path[1] = vec
 
-    def update_direc(self):
+    def try_to_turn(self, direc: PVector) -> None:  # BUG TESTED
+        if self.level.is_safe(self.nearest_node + direc) and self.is_on_grid_line():
+            if self.is_on_node():
+                self.direc = direc
+            elif self.is_turning(direc):
+                if abs(self.pos % 16) < PVector(max_cut,
+                                                max_cut):  # If we can cut
+                    # New direc will be based on the objective direction
+                    dist_from_center = self.pos.dist_from(self.node_to_pixel(self.nearest_node))
+                    # pixels_in_new_direc=direc*dist_from_center
+                    pixel_dist = self.node_to_pixel(self.nearest_node) - self.pos
+
+                    self.diagonal_move = pixel_dist / dist_from_center + direc
+                    self.cut_corner = True
+                    self.direc = direc
+            else:
+                self.direc = direc
+
+    def is_on_grid_line(self):
+        # vertical line check
+        if (self.pos.y - 8) % 16 == 0:
+            return True
+        # horizontal line check
+        if (self.pos.x - 8) % 16 == 0:
+            return True
+        return False
+
+    def is_turning(self, direc):
+        return abs(direc) != abs(self.direc)
+
+    def is_diagonal_move(self):
+        return self.direc != PVector(0, 0)
+
+    def update_direc(self):  # OUTDATED
         if self.level.is_safe(self.nearest_node + self.direc):
             self.path[0] = self.direc
             return
@@ -68,28 +118,20 @@ class Pacman(Entity):
                 node_list.append(self.direc_to(node))
         return node_list
 
-    def get_adj_nodes(self):
-        return [
-            self.nearest_node + PVector(1, 0),
-            self.nearest_node + PVector(0, 1),
-            self.nearest_node + PVector(-1, 0),
-            self.nearest_node + PVector(0, -1)]
+
 
     def check_node(self):
         if self.is_on_node():
             self.check_teleport()
             self.consume_node()
-            if len(self.path) > 1 and self.level.is_safe(self.nearest_node + self.path[1]):
-                self.path = self.path[1:]
-                self.set_direc()
-            elif not self.level.is_safe(self.nearest_node + self.direc):
+            if not self.level.is_safe(self.nearest_node + self.direc):
                 self.direc = PVector(0, 0)
 
     def update(self, game_mode):
         if game_mode == GameMode.NORMAL:
             self.get_key_strokes()
-            self.check_node()
             self.move()
+            self.check_node()
 
     def consume_node(self):
         if self.level.get_tile_val(self.nearest_node) in PELLET_VALS:
@@ -109,3 +151,15 @@ class Pacman(Entity):
         if self.direc == PVector(0, -self.speed):
             self.surf = self.up_surf[self.anim_num]
             return
+
+    def move(self):
+        if self.cut_corner:
+            print(self.diagonal_move)
+            self.cut_corner = False
+            self.pos += self.diagonal_move
+        elif self.is_on_grid_line():
+            self.pos += self.direc
+        else:
+            self.pos += self.diagonal_move
+
+        self.nearest_node = self.pixel_to_node()
