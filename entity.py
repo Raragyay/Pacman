@@ -13,7 +13,7 @@ class Entity:
         """
         """
         self.pos = self.node_to_pixel(loc)
-        self.speed = default_speed
+        self.speed = default_speed  # TODO USE THIS?
         self.direc = PVector(0, 0)
         self.level = level
 
@@ -69,8 +69,9 @@ class Entity:
                 return PVector(1, 0)
             else:
                 return PVector(-1, 0)
-        raise ValueError(
-                "Position {} is not orthogonally adjacent to entity position: {}".format(pos, self.nearest_node))
+        # raise ValueError(
+        #         "Position {} is not orthogonally adjacent to entity position: {}".format(pos, self.nearest_node))
+        return None
 
     def update_surf(self):
         raise NotImplementedError('Do not create raw entity objects.')

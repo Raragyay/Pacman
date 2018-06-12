@@ -174,7 +174,7 @@ class Level:
             if tile.teleport():
                 teleport_to_tile = self.calc_teleport(key)
                 tile.teleport_to_tile = teleport_to_tile
-                # self.edges[key].add(teleport_to_tile) #To fix ghost super zoom bug
+                self.edges[key].add(teleport_to_tile)  # To fix ghost super zoom bug
             if tile.name == 'ghost-door':
                 self.build_edges(key)
                 self.ghost_door = key
@@ -284,8 +284,8 @@ class Level:
         assert self.pacman_start is not None, "No start position for Pacman found."
         assert self.blinky_start is not None, "No start position for Blinky found."
         assert self.pinky_start is not None, "No start position for Pinky found."
-        # assert self.clyde_start is not None, "No start position for Clyde found."
-        # assert self.inky_start is not None, "No start position for Inky found."
+        assert self.clyde_start is not None, "No start position for Clyde found."
+        assert self.inky_start is not None, "No start position for Inky found."
 
     def get_tile_val(self, node):
         return self.tile_vals[node]

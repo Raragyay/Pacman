@@ -12,5 +12,5 @@ class Blinky(Ghost):
 
     def update_direc(self):
         # Ghost chases pacman current location
-        self.direc = self.closest_direction(self.pacman.nearest_node)
+        self.direc = self.path_to(self.pacman.nearest_node)
         # self.path = self.bfs(self.pacman.nearest_node)

@@ -4,6 +4,7 @@ import pygame
 from PVector import PVector
 from constants import GameMode
 from ghosts.ghost import Ghost
+from ghosts.inky import Inky
 from ghosts.pinky import Pinky
 from ghosts.blinky import Blinky
 from level import Level
@@ -14,7 +15,7 @@ class Game:
     def __init__(self):
         pygame.init()
         _ = pygame.display.set_mode((1, 1))
-        self.level_num = 0
+        self.level_num = 1
         self.score = 0
         self.clock = pygame.time.Clock()
         self.entities = []
@@ -52,8 +53,9 @@ class Game:
 
     def add_entities(self):
         self.entities.append(Pacman(self.level.start_location(), self.level))
-        # self.entities.append(Blinky(self.level, self.entities[0]))
+        self.entities.append(Blinky(self.level, self.entities[0]))
         self.entities.append(Pinky(self.level, self.entities[0]))
+        self.entities.append(Inky(self.level, self.entities[0], self.entities[1]))
         # TODO make list of ghosts
 
     def setup(self):
@@ -91,16 +93,19 @@ class Game:
     def check_win(self):
         if self.level.won():
             self.mode = GameMode.WAIT_AFTER_FINISH
-
-    def check_loss(self):
-        if self.no_lives():
-            self.lives = 3
+            # transition time
+            self.mode = GameMode.NORMAL
             self.level_num += 1
             try:
                 self.reset()
             except FileNotFoundError:
                 print("This is the end of the demo. Thanks for playing!")
                 exit(0)
+
+    def check_loss(self):
+        if self.no_lives():
+            print("This is the end of the demo. Thanks for playing!")
+            exit(0)
         for ghost in self.entities[1:]:
             if ghost.collided_with_pacman():
                 self.mode = GameMode.GHOST_HIT

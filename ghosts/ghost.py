@@ -1,4 +1,5 @@
 # coding=utf-8
+import sys
 from collections import deque
 
 import constants
@@ -60,22 +61,34 @@ class Ghost(Entity):
         for node in self.level.edges[self.nearest_node]:
             if self.direc_to(node) == self.direc * -1:  # Cannot go backwards
                 continue
+            if self.direc_to(node) is None:  # for Teleport catching
+                continue
             dist[self.direc_to(node)] = node.dist_from(target)
         sorted_dist = sorted(dist.keys(), key=dist.get)
         return sorted_dist[0]
 
     def bfs(self, target):
         queue = deque([(self.nearest_node, [self.nearest_node])])
+        closest_distance = sys.maxsize
+        closest_path = None
+        visited = set()
+
         # Every element is a tuple of the current node and the path that it took INCLUDING START
         while queue:
             current, path = queue.popleft()
-            if current == target:
-                return self.build_direc(path)
-            for node in self.level.edges[current]:
+            visited.add(current)
+            if current == target and len(path) > 1:
+                return self.direc_to(path[1])
+            for node in self.level.edges[current] - visited:
+                if len(path) == 1 and self.direc_to(node) == self.direc * -1:  # Cannot go backwards
+                    continue
                 queue.append((node, path + [node]))
-        return None
+                if path[-1].dist_from(target) < closest_distance:
+                    closest_path = path
+        return self.direc_to(closest_path[1])
+        # return None
 
-    def build_direc(self, node_path):
+    def build_direc(self, node_path):  # OUTDATED
         direc_path = []
         if len(node_path) == 1:
             raise ValueError('Ghost is already on Pacman, but has not won yet. ')
@@ -105,3 +118,6 @@ class Ghost(Entity):
             self.direc = self.direc_to(self.level.ghost_door)
         else:  # Find node that is closest to the exit.
             self.direc = self.closest_direction(self.level.ghost_door)
+
+    def path_to(self, target: PVector):
+        return self.closest_direction(target)

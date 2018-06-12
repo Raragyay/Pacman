@@ -18,5 +18,5 @@ class Pinky(Ghost):
             self.exit_box()
             return
         # Ghost chases pacman current location
-        self.direc = self.closest_direction(self.pacman.nearest_node + self.pacman.direc * 4)
+        self.direc = self.path_to(self.pacman.nearest_node + self.pacman.direc * 4)
         # self.path = self.bfs(self.pacman.nearest_node)

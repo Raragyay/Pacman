@@ -3,7 +3,7 @@ from math import sqrt, ceil
 
 
 class PVector:
-    def __init__(self, x: int, y: int):
+    def __init__(self, x, y):
         """
         :param x: Horizontal Location or Velocity
         :param y: Vertical Location or Velocity
@@ -54,6 +54,7 @@ class PVector:
         return self.x < other.x and self.y < other.y
 
     def direc_to(self, other):
+        # This is only used to build directions for BFS, which is no longer being used.
         return other - self
 
     def dist_from(self, other):
