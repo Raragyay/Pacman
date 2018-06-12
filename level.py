@@ -110,7 +110,7 @@ class Level:
         self.attach_tiles()
         f.close()
         self.assert_start_positions()
-        print(len(self.edges[self.ghost_door]))
+        # print(len(self.edges[self.ghost_door]))
 
     def write_attr(self, information):
         """
@@ -174,7 +174,7 @@ class Level:
             if tile.teleport():
                 teleport_to_tile = self.calc_teleport(key)
                 tile.teleport_to_tile = teleport_to_tile
-                self.edges[key].add(teleport_to_tile)
+                # self.edges[key].add(teleport_to_tile) #To fix ghost super zoom bug
             if tile.name == 'ghost-door':
                 self.build_edges(key)
                 self.ghost_door = key

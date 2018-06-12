@@ -1,4 +1,5 @@
 # coding=utf-8
+from PVector import PVector
 from ghosts.ghost import Ghost
 from level import Level
 from pacman import Pacman

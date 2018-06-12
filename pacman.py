@@ -76,6 +76,7 @@ class Pacman(Entity):
             if self.is_on_node():
                 self.direc = direc
             elif self.is_turning(direc):
+                self.consume_node()
                 if abs(self.pos % 16) < PVector(max_cut,
                                                 max_cut):  # If we can cut
                     # New direc will be based on the objective direction
@@ -154,7 +155,7 @@ class Pacman(Entity):
 
     def move(self):
         if self.cut_corner:
-            print(self.diagonal_move)
+            # print(self.diagonal_move)
             self.cut_corner = False
             self.pos += self.diagonal_move
         elif self.is_on_grid_line():

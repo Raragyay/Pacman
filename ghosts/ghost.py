@@ -22,7 +22,7 @@ class Ghost(Entity):
         self.pacman = pacman
         if not Ghost.surfs:
             Ghost.load_surfs()
-        if not Ghost.ghost_box:
+        if not Ghost.ghost_box:  # TODO ADD GHOST BOX TO LEVEL INSTEAD OF GHOST CLASS
             Ghost.load_ghost_box(level)
 
     def convert_surfaces(self, target_clr: tuple) -> None:
@@ -43,8 +43,8 @@ class Ghost(Entity):
 
     def update(self, game_mode: GameMode):
         if game_mode == GameMode.NORMAL:
-            self.check_node()
             self.move()
+            self.check_node()
 
     def check_node(self):
         if self.is_on_node():  # If we need to check our direction
@@ -58,9 +58,9 @@ class Ghost(Entity):
     def closest_direction(self, target):
         dist = {}
         for node in self.level.edges[self.nearest_node]:
-            if self.nearest_node.direc_to(node) == self.direc * -1:  # Cannot go backwards
+            if self.direc_to(node) == self.direc * -1:  # Cannot go backwards
                 continue
-            dist[self.nearest_node.direc_to(node)] = node.dist_from(target)
+            dist[self.direc_to(node)] = node.dist_from(target)
         sorted_dist = sorted(dist.keys(), key=dist.get)
         return sorted_dist[0]
 

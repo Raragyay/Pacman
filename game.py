@@ -5,6 +5,7 @@ from PVector import PVector
 from constants import GameMode
 from ghosts.ghost import Ghost
 from ghosts.pinky import Pinky
+from ghosts.blinky import Blinky
 from level import Level
 from pacman import Pacman
 
