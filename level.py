@@ -5,9 +5,10 @@ import os
 from PVector import PVector
 from constants import level_location, log_folder, log_format, cur_log_level, default_fill_colour, \
     default_edge_shadow_colour, default_pellet_colour, default_edge_light_colour, PELLET_VALS, default_bg_colour, \
-    ACCESSIBLE_TILES, WALL_VAL
+    ACCESSIBLE_TILES, WALL_VAL, BIG_PELLET_VAL
 from crossref import CrossRef
 from fruit import Fruit
+from ghosts.ghost_init import GhostInit
 from tile import Tile
 
 
@@ -29,21 +30,20 @@ class Level:
         self.tile_vals = {}
         self.edges = {}
 
-        self.pellets = 0
-        self.power_pellet_blink_timer = 0
+        self.big_dot_num = 0
         self.fruit = Fruit()
 
         self.cross_ref = CrossRef()
 
         self.pacman_start = None
-        self.blinky_start = None
-        self.pinky_start = None
-        self.clyde_start = None
-        self.inky_start = None
+        self.blinky_start = GhostInit()
+        self.pinky_start = GhostInit()
+        self.clyde_start = GhostInit()
+        self.inky_start = GhostInit()
         self.ghost_door = None
 
     def setup(self):
-        pass
+        self.cross_ref.load_text_imgs()
 
     def set_tile(self, coords, val):
         assert coords in self.tile_vals, f'The coordinates given of {coords} were not in the map.'
@@ -144,6 +144,17 @@ class Level:
                 self.bg_colour = colour_tup
             else:
                 return -1  # An error has occurred
+        elif 'ghost' in attr:
+            corner_1 = PVector(int(information[2]), int(information[3]))
+            corner_2 = PVector(int(information[4]), int(information[5]))
+            if 'blinky' in attr:
+                self.blinky_start.add_corners(corner_1, corner_2)
+            if 'pinky' in attr:
+                self.pinky_start.add_corners(corner_1, corner_2)
+            if 'inky' in attr:
+                self.inky_start.add_corners(corner_1, corner_2)
+            if 'clyde' in attr:
+                self.clyde_start.add_corners(corner_1, corner_2)
         elif attr == 'fruittype':
             self.fruit.fruit_type = int(information[2])
         elif attr == 'startleveldata':
@@ -184,27 +195,30 @@ class Level:
                 self.build_edges(key)
                 continue
             if tile.name == 'ghost-blinky':
-                self.blinky_start = key
+                self.blinky_start.add_start(key)
                 self.set_tile(key, 0)
                 self.build_edges(key)
                 continue
             if tile.name == 'ghost-pinky':
-                self.pinky_start = key
+                self.pinky_start.add_start(key)
                 self.set_tile(key, 0)
                 self.build_edges(key)
                 continue
             if tile.name == 'ghost-inky':
-                self.inky_start = key
+                self.inky_start.add_start(key)
                 self.set_tile(key, 0)
                 self.build_edges(key)
                 continue
             if tile.name == 'ghost-clyde':
-                self.clyde_start = key
+                self.clyde_start.add_start(key)
                 self.set_tile(key, 0)
                 self.build_edges(key)
                 continue
+            if tile.id == BIG_PELLET_VAL:
+                self.big_dot_num += 1
             self.tiles[key] = tile
-        self.edges[self.ghost_door] -= {self.inky_start, self.pinky_start, self.clyde_start}
+        self.edges[self.ghost_door] -= {self.inky_start.get_start(), self.pinky_start.get_start(),
+                                        self.clyde_start.get_start()}
 
     def build_edges(self, node: PVector):
         edges = self.get_surrounding_accessibles(node)
@@ -310,11 +324,19 @@ class Level:
         self.tiles = {}
         self.edges = {}
         self.pellets = 0  # Reset Pellet Number
+        self.big_dot_num = 0
         self.pacman_start = None
-        self.blinky_start = None
-        self.pinky_start = None
-        self.clyde_start = None
-        self.inky_start = None
+        self.blinky_start = GhostInit()
+        self.pinky_start = GhostInit()
+        self.clyde_start = GhostInit()
+        self.inky_start = GhostInit()
+        self.ghost_door = None
+
+    def get_life_gif(self):
+        return self.cross_ref.id_to_img['life'].get_surf()
+
+    def get_text_num(self, char: str):
+        return self.cross_ref.id_to_img[char].get_surf()
 
 
 if __name__ == '__main__':

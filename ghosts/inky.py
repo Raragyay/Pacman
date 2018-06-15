@@ -10,14 +10,11 @@ from pacman import Pacman
 
 class Inky(Ghost):
     def __init__(self, level: Level, pacman: Pacman, blinky: Blinky):
-        super().__init__(level.inky_start, level, pacman)
+        super().__init__(level, level.inky_start, pacman)
         self.convert_surfaces((128, 255, 255, 255))
         self.blinky = blinky
 
     def update_direc(self):
-        if self.in_ghost_box():
-            self.exit_box()
-            return
         self.direc = self.path_to(self.calc_target())
         # Ghost chases pacman current location
         # self.direc = self.closest_direction(self.pacman.nearest_node + self.pacman.direc * 4)

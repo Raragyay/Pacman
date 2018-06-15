@@ -1,5 +1,5 @@
 # coding=utf-8
-from math import sqrt, ceil
+from math import sqrt, ceil, floor
 
 
 class PVector:
@@ -50,8 +50,22 @@ class PVector:
     def __ceil__(self):
         return PVector(ceil(self.x), ceil(self.y))
 
+    def __round__(self):
+        if self.x < 0:
+            new_x = floor(self.x)
+        else:
+            new_x = ceil(self.x)
+        if self.y < 0:
+            new_y = floor(self.y)
+        else:
+            new_y = ceil(self.y)
+        return PVector(new_x, new_y)
+
     def __lt__(self, other):
         return self.x < other.x and self.y < other.y
+
+    def __le__(self, other):
+        return self.x <= other.x and self.y <= other.y
 
     def direc_to(self, other):
         # This is only used to build directions for BFS, which is no longer being used.

@@ -1,26 +1,26 @@
 # coding=utf-8
 import os
 import random
+from math import ceil
 
 import pygame
 
 import constants
 from PVector import PVector
-from constants import GameMode, default_speed, PELLET_VALS, max_cut
+from constants import GameMode, default_speed, PELLET_VALS, max_cut, BIG_PELLET_VAL
 from entity import Entity
 from level import Level
 
 
 class Pacman(Entity):
-    def __init__(self, loc: PVector, level: Level):
+    def __init__(self, level: Level):
         """
         The idea for the pacman object is that it will first check if it is on a turning point.
 
         If it is on a turning point, then it will check if it can go in the direction mentioned
-        :param loc:
         :param level:
         """
-        super().__init__(loc, level)
+        super().__init__(level.start_location(), level)
         self.surf = pygame.image.load(os.path.join(constants.sprite_folder, 'pacman.gif')).convert()
         self.up_surf = [self.surf]
         self.down_surf = [self.surf]
@@ -39,6 +39,11 @@ class Pacman(Entity):
 
         self.diagonal_move = self.direc
         self.cut_corner = False
+        self.ghost_reverse = False
+        self.dot_eat_timer = 0
+        self.ate_big_dot = False
+        self.ate_small_dot = False
+        self.combo = 0
 
     def get_key_strokes(self) -> None:
         # for event in pygame.event.get():
@@ -119,23 +124,29 @@ class Pacman(Entity):
                 node_list.append(self.direc_to(node))
         return node_list
 
-
-
     def check_node(self):
         if self.is_on_node():
             self.check_teleport()
-            self.consume_node()
             if not self.level.is_safe(self.nearest_node + self.direc):
                 self.direc = PVector(0, 0)
 
-    def update(self, game_mode):
-        if game_mode == GameMode.NORMAL:
-            self.get_key_strokes()
-            self.move()
-            self.check_node()
+    def update(self):
+        self.reset_dots()
+        self.get_key_strokes()
+        self.move()
+        self.consume_node()
+        self.check_node()
 
     def consume_node(self):
         if self.level.get_tile_val(self.nearest_node) in PELLET_VALS:
+            if self.level.get_tile_val(self.nearest_node) == BIG_PELLET_VAL:  # Big dot
+                self.ate_big_dot = True
+                self.combo = 0
+                self.dot_eat_timer = 2
+            else:  # Small dot
+                self.dot_eat_timer = 1
+                self.ate_small_dot = True
+
             self.level.set_tile(self.nearest_node, 0)
 
     def update_surf(self):
@@ -154,7 +165,10 @@ class Pacman(Entity):
             return
 
     def move(self):
-        if self.cut_corner:
+        if self.dot_eat_timer != 0:
+            self.dot_eat_timer -= 1
+            # print("ate dot")
+        elif self.cut_corner:
             # print(self.diagonal_move)
             self.cut_corner = False
             self.pos += self.diagonal_move
@@ -164,3 +178,21 @@ class Pacman(Entity):
             self.pos += self.diagonal_move
 
         self.nearest_node = self.pixel_to_node()
+
+    def reset_dots(self):
+        if self.ate_big_dot:
+            self.ate_big_dot = False
+            # print('undid big dot eat')
+        if self.ate_small_dot:
+            self.ate_small_dot = False
+
+    def increment_combo(self):
+        self.combo += 1
+
+    def add_score(self):
+        score = 0
+        if self.ate_big_dot:
+            score += 50
+        if self.ate_small_dot:
+            score += 10
+        return score

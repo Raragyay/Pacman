@@ -13,7 +13,7 @@ class Entity:
         """
         """
         self.pos = self.node_to_pixel(loc)
-        self.speed = default_speed  # TODO USE THIS?
+        self.speed = default_speed  # TODO USE THIS? YES FOR GHOST
         self.direc = PVector(0, 0)
         self.level = level
 
@@ -45,7 +45,7 @@ class Entity:
     def is_on_node(self):
         return (self.pos.x - 8) % 16 == 0 and (self.pos.y - 8) % 16 == 0
 
-    def set_direc(self):
+    def set_direc(self):  # OUTDATED
         self.direc = self.path[0]
 
     def update_direc(self):
@@ -59,16 +59,19 @@ class Entity:
         return self.pos.x - 8, self.pos.y - 8
 
     def direc_to(self, pos: PVector):
-        if self.nearest_node.x == pos.x:
-            if self.nearest_node.y < pos.y:
-                return PVector(0, 1)
-            else:
-                return PVector(0, -1)
-        elif self.nearest_node.y == pos.y:
-            if self.nearest_node.x < pos.x:
-                return PVector(1, 0)
-            else:
-                return PVector(-1, 0)
+        if self.nearest_node == pos:
+            return PVector(0, 0)
+        if abs(self.nearest_node - pos) <= PVector(1, 1):
+            if self.nearest_node.x == pos.x:
+                if self.nearest_node.y < pos.y:
+                    return PVector(0, self.speed)
+                else:
+                    return PVector(0, -self.speed)
+            elif self.nearest_node.y == pos.y:
+                if self.nearest_node.x < pos.x:
+                    return PVector(self.speed, 0)
+                else:
+                    return PVector(-self.speed, 0)
         # raise ValueError(
         #         "Position {} is not orthogonally adjacent to entity position: {}".format(pos, self.nearest_node))
         return None
@@ -83,7 +86,7 @@ class Entity:
         if self.anim_num > self.max_anim_num:
             self.anim_num = 0
 
-    def update(self, game_mode):
+    def update(self):
         raise NotImplementedError('Do not create raw entity objects.')
 
     def check_teleport(self):

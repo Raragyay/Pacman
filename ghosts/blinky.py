@@ -7,7 +7,7 @@ from pacman import Pacman
 
 class Blinky(Ghost):
     def __init__(self, level: Level, pacman: Pacman):
-        super().__init__(level.blinky_start, level, pacman)
+        super().__init__(level, level.blinky_start, pacman)
         self.convert_surfaces((255, 0, 0, 255))
 
     def update_direc(self):

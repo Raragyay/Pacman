@@ -29,8 +29,9 @@ class Tile:
 
         self.surface = pygame.image.load(
                 os.path.join(gif_location, self.name + '.gif')).convert()  # change default file location
-        for y in range(16):
-            for x in range(16):
+        surface_size = self.surface.get_size()
+        for x in range(surface_size[0]):
+            for y in range(surface_size[1]):
                 if self.surface.get_at((x, y)) == constants.default_edge_light_colour:
                     self.surface.set_at((x, y), edge_light_colour)
                 elif self.surface.get_at((x, y)) == constants.default_fill_colour:

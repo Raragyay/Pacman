@@ -2,14 +2,14 @@
 import logging
 import os
 
-from constants import file_paths, log_folder, log_format, cur_log_level
+from constants import file_paths, log_folder, log_format, cur_log_level, text_folder
 from tile import Tile
 
 
 class CrossRef:
     def __init__(self):
         self.id_to_img = {}
-        self.wall_binary_to_img={}
+        # self.wall_binary_to_img={}
 
     def load_cross_refs(self, edge_light_colour, fill_colour, edge_shadow_colour, pellet_colour):
         logging.basicConfig(filename=os.path.join(log_folder, 'cross_refs.log'),
@@ -32,7 +32,7 @@ class CrossRef:
 
             if use_line:
                 tile_id = int(str_split_by_space[0])
-                if len(str_split_by_space[0])==4:
+                if len(str_split_by_space[0]) == 4:
                     tile_id = str_split_by_space[0]
                 logging.debug(tile_id)
                 tile_name = str_split_by_space[1]
@@ -44,3 +44,10 @@ class CrossRef:
 
     def get_tile(self, id):
         return self.id_to_img[id]
+
+    def load_text_imgs(self):
+        for filename in os.listdir(text_folder):
+            img_name = filename.split('.')[0]
+            tile = Tile(None, img_name, filename)
+            tile.load_surface(gif_location=text_folder)
+            self.id_to_img[img_name] = tile

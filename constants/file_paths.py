@@ -7,6 +7,7 @@ base_folder=os.path.join(os.path.dirname(__file__),r'..')
 level_location=os.path.join(base_folder,'resources','levels')
 tile_folder=os.path.join(base_folder,'resources','tiles')
 sprite_folder=os.path.join(base_folder,'resources','sprites')
+text_folder = os.path.join(base_folder, 'resources', 'text')
 log_folder=os.path.join(base_folder,'logs')
 
 
