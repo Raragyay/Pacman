@@ -41,6 +41,7 @@ class Level:
         self.clyde_start = GhostInit()
         self.inky_start = GhostInit()
         self.ghost_door = None
+        self.ready_gif_topleft = None
 
     def setup(self):
         self.cross_ref.load_text_imgs()
@@ -216,6 +217,12 @@ class Level:
                 continue
             if tile.id == BIG_PELLET_VAL:
                 self.big_dot_num += 1
+            if tile.name == 'ready':
+                self.ready_gif_topleft: tuple = (key.x * 16 + 8 - 20, key.y * 16 + 8 - 5)
+                self.set_tile(key, 0)
+                self.build_edges(key)
+                continue
+
             self.tiles[key] = tile
         self.edges[self.ghost_door] -= {self.inky_start.get_start(), self.pinky_start.get_start(),
                                         self.clyde_start.get_start()}
@@ -300,6 +307,7 @@ class Level:
         assert self.pinky_start is not None, "No start position for Pinky found."
         assert self.clyde_start is not None, "No start position for Clyde found."
         assert self.inky_start is not None, "No start position for Inky found."
+        assert self.ready_gif_topleft is not None, "No position for ready gif found."
 
     def get_tile_val(self, node):
         return self.tile_vals[node]
@@ -331,12 +339,19 @@ class Level:
         self.clyde_start = GhostInit()
         self.inky_start = GhostInit()
         self.ghost_door = None
+        self.ready_gif_topleft = None
 
     def get_life_gif(self):
         return self.cross_ref.id_to_img['life'].get_surf()
 
     def get_text_num(self, char: str):
         return self.cross_ref.id_to_img[char].get_surf()
+
+    def get_ready_gif(self):
+        return self.cross_ref.id_to_img['ready'].get_surf()
+
+    def get_ready_pos(self):
+        return self.ready_gif_topleft
 
 
 if __name__ == '__main__':

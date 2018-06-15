@@ -3,11 +3,11 @@ import logging
 
 log_format = '%(levelname)s %(asctime)s %(message)s'
 cur_log_level = logging.DEBUG
-NO_GIF_SURFACE = {23, 10, 11, 12, 13}
+NO_GIF_SURFACE = {23, 10, 11, 12, 13, 22}
 PELLET_VALS = {2, 3}
 BIG_PELLET_VAL = 3
 TELEPORT_TILES = {20, 21}
-ACCESSIBLE_TILES = {0, 2, 3, 4, 10, 11, 12, 13, 20, 21}
+ACCESSIBLE_TILES = {0, 2, 3, 4, 10, 11, 12, 13, 20, 21, 22}
 WALL_VAL = 100
 GHOST_DOOR = 1
 GHOST_EAT_SCORE = 200

@@ -23,6 +23,7 @@
 
 020 door-h horizontal door (teleport to other side of maze)
 021 door-v vertical door (teleport to other side of maze)
+022 ready ready sign
 ' 022 show-logo draws the logo
 ' 023 high-scores draws a high-score list
 

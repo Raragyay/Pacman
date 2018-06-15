@@ -31,6 +31,8 @@ class Game:
             self.check_quit()
             if self.mode == GameMode.NORMAL:
                 self.run_normal()
+            elif self.mode == GameMode.WAIT_TO_START:
+                self.run_wait_to_start()
             self.draw_level()
             self.draw_entities()
             self.draw_numbers()
@@ -45,9 +47,12 @@ class Game:
         self.check_win()
         self.check_loss()  # TODO Maybe move this somewhere else
 
+    def run_wait_to_start(self):
+        self.draw_ready_sign()
+
     def reset(self):
         self.entities = []
-        self.mode = GameMode.NORMAL
+        self.mode = GameMode.WAIT_TO_START
         self.level.load_map(self.level_num)
         self.screen = pygame.display.set_mode((self.level.width() * 16, self.level.height() * 16))
         self.reset_entities()
@@ -85,6 +90,10 @@ class Game:
             # To force win
             # if event.type=pygame.
 
+    def draw_ready_sign(self):
+        self.screen.blit(self.level.get_ready_gif(),
+                         self.level.get_ready_pos())
+
     def update_entities(self):
         for entity in self.entities:
             entity.update()
@@ -113,7 +122,7 @@ class Game:
 
     def check_win(self):
         if self.level.won():
-            self.mode = GameMode.WAIT_AFTER_FINISH
+            # self.mode = GameMode.WAIT_AFTER_FINISH
             # transition time
             self.mode = GameMode.NORMAL
             self.level_num += 1
@@ -126,14 +135,15 @@ class Game:
     def check_loss(self):
         if self.no_lives():
             print("This is the end of the demo. Thanks for playing!")
+            print(self.score)
             exit(0)
         for ghost in self.entities[1:]:
             if ghost.collided_with_pacman():
-                if ghost.scared_timer:
+                if ghost.scared_timer and not ghost.dead():
                     self.add_ghost_hit_score()
                     ghost.die()
                 elif not ghost.dead():
-                    self.mode = GameMode.GHOST_HIT  # I'm not sure if it's supposed to be used for this
+                    # self.mode = GameMode.GHOST_HIT  # I'm not sure if it's supposed to be used for this
                     self.die()
 
     def add_ghost_hit_score(self):
