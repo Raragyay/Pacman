@@ -13,6 +13,9 @@ GHOST_DOOR = 1
 GHOST_EAT_SCORE = 200
 ALL_GHOSTS_ALL_TIMES = 12000
 
+WAIT_FOR_READY_TIMER = 120
+GHOST_HIT_TIMER = 30
+
 default_edge_light_colour = (255, 206, 255, 255)
 default_fill_colour = (132, 0, 132, 255)
 default_edge_shadow_colour = (255, 0, 255, 255)

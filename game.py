@@ -3,6 +3,7 @@ import pygame
 
 from PVector import PVector
 from constants import GameMode, GHOST_EAT_SCORE, ALL_GHOSTS_ALL_TIMES
+from constants.constants import WAIT_FOR_READY_TIMER, GHOST_HIT_TIMER
 from ghosts.clyde import Clyde
 from ghosts.ghost import Ghost
 from ghosts.inky import Inky
@@ -24,6 +25,7 @@ class Game:
         self.level = Level()
         self.lives = 3
         self.ate_all = 0
+        self.timer = 0
 
     def run(self):
         self.setup()
@@ -33,6 +35,8 @@ class Game:
                 self.run_normal()
             elif self.mode == GameMode.WAIT_TO_START:
                 self.run_wait_to_start()
+            elif self.mode == GameMode.WAIT_AFTER_GHOST_HIT:
+                self.run_wait_after_ghost_hit()
             self.draw_level()
             self.draw_entities()
             self.draw_numbers()
@@ -48,7 +52,11 @@ class Game:
         self.check_loss()  # TODO Maybe move this somewhere else
 
     def run_wait_to_start(self):
+        self.wait(WAIT_FOR_READY_TIMER)
         self.draw_ready_sign()
+
+    def run_wait_after_ghost_hit(self):
+        self.wait(GHOST_HIT_TIMER)
 
     def reset(self):
         self.entities = []
@@ -57,6 +65,7 @@ class Game:
         self.screen = pygame.display.set_mode((self.level.width() * 16, self.level.height() * 16))
         self.reset_entities()
         self.ate_all = 0
+        self.timer = 0
 
     def reset_entities(self):
         self.entities = []
@@ -70,6 +79,13 @@ class Game:
         self.entities.append(Inky(self.level, self.pacman, self.entities[1]))
         self.entities.append(Clyde(self.level, self.pacman))
         # TODO make list of ghosts
+
+    def wait(self, limit):
+        self.timer += 1
+        if self.timer >= limit:
+            self.mode = GameMode.NORMAL
+            self.timer = 0
+            # TODO set to 0? YES
 
     def setup(self):
         self.level.setup()
@@ -129,18 +145,16 @@ class Game:
             try:
                 self.reset()
             except FileNotFoundError:
-                print("This is the end of the demo. Thanks for playing!")
-                exit(0)
+                self.end()
 
     def check_loss(self):
         if self.no_lives():
-            print("This is the end of the demo. Thanks for playing!")
-            print(self.score)
-            exit(0)
+            self.end()
         for ghost in self.entities[1:]:
             if ghost.collided_with_pacman():
                 if ghost.scared_timer and not ghost.dead():
                     self.add_ghost_hit_score()
+                    self.wait_after_ghost_hit()
                     ghost.die()
                 elif not ghost.dead():
                     # self.mode = GameMode.GHOST_HIT  # I'm not sure if it's supposed to be used for this
@@ -154,6 +168,9 @@ class Game:
             if self.ate_all == self.level.big_dot_num:
                 self.score += ALL_GHOSTS_ALL_TIMES
 
+    def wait_after_ghost_hit(self):
+        self.mode = GameMode.WAIT_AFTER_GHOST_HIT
+
     def add_pacman_score(self):
         self.score += self.pacman.add_score()
 
@@ -164,6 +181,11 @@ class Game:
         self.lives -= 1
         self.reset_entities()
         self.mode = GameMode.NORMAL
+
+    def end(self):
+        print("This is the end of the demo. Thanks for playing!")
+        print(self.score)
+        exit(0)
 
 
 if __name__ == '__main__':

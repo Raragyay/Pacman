@@ -45,6 +45,8 @@ class Pacman(Entity):
         self.ate_small_dot = False
         self.combo = 0
 
+        # self.direc = PVector(-1, 0)
+
     def get_key_strokes(self) -> None:
         # for event in pygame.event.get():
         #     if event.type==pygame.KEYDOWN:

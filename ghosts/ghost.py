@@ -20,7 +20,6 @@ class Ghost(Entity):
     blue_surfs = []
     white_surfs = []
     grey_surfs = []
-    ghost_box = set()
     cycle_states = (
         GhostState.SCATTER, GhostState.CHASE, GhostState.SCATTER, GhostState.CHASE, GhostState.SCATTER,
         GhostState.CHASE)
@@ -46,8 +45,6 @@ class Ghost(Entity):
 
         if not Ghost.surfs:
             Ghost.load_surfs()
-        if not Ghost.ghost_box:  # TODO ADD GHOST BOX TO LEVEL INSTEAD OF GHOST CLASS
-            Ghost.load_ghost_box(level)
 
     def convert_surfaces(self, target_clr: tuple) -> None:
         for surf in Ghost.surfs:
@@ -70,11 +67,6 @@ class Ghost(Entity):
             cls.blue_surfs.append(blue_surf)
             cls.white_surfs.append(white_surf)
             cls.grey_surfs.append(grey_surf)
-
-    @classmethod
-    def load_ghost_box(cls, level: Level):
-        cls.ghost_box = {level.pinky_start.get_start(), level.inky_start.get_start(), level.clyde_start.get_start(),
-                         level.ghost_door}
 
     def update(self):
         self.check_node()
@@ -107,7 +99,7 @@ class Ghost(Entity):
                 # print(self.scared_timer)
             else:
                 self.speed = default_speed
-                if self.start in Ghost.ghost_box and self.nearest_node in Ghost.ghost_box:
+                if self.start in self.level.ghost_box and self.nearest_node in self.level.ghost_box:
                     # TODO change to level ghost box
                     self.exit_box()
                 elif self.cycle_state == GhostState.SCATTER:
@@ -229,7 +221,7 @@ class Ghost(Entity):
         return self.nearest_node == self.pacman.nearest_node
 
     def in_ghost_box(self):
-        return self.nearest_node in Ghost.ghost_box  # TODO modify to level ghost box
+        return self.nearest_node in self.level.ghost_box  # TODO modify to level ghost box
 
     def exit_box(self):
         if self.nearest_node == self.level.ghost_door:  # Let's get out of the ghost box. And never go back
@@ -253,7 +245,7 @@ class Ghost(Entity):
             self.direc = opposite_direc
         elif self.in_ghost_box():
             self.direc = self.direc_to(self.start)
-        elif self.direc_to(self.level.ghost_door) is not None:  # We're right outside it
+        elif self.nearest_node in self.level.edges[self.level.ghost_door]:  # We're right outside it
             self.direc = self.direc_to(self.level.ghost_door)
         else:  # Make our way to the ghost door
             self.direc = self.closest_direction(self.level.ghost_door)

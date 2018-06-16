@@ -11,3 +11,4 @@ class GameMode(Enum):
 
     NORMAL = 1
     WAIT_TO_START = 2
+    WAIT_AFTER_GHOST_HIT = 3

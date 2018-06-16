@@ -13,7 +13,7 @@ class Entity:
         """
         """
         self.pos = self.node_to_pixel(loc)
-        self.speed = default_speed  # TODO USE THIS? YES FOR GHOST
+        self.speed = default_speed
         self.direc = PVector(0, 0)
         self.level = level
 
@@ -61,6 +61,8 @@ class Entity:
     def direc_to(self, pos: PVector):
         if self.nearest_node == pos:
             return PVector(0, 0)
+        if self.level.tiles[self.nearest_node].teleport_to_tile == pos:
+            return self.direc
         if abs(self.nearest_node - pos) <= PVector(1, 1):
             if self.nearest_node.x == pos.x:
                 if self.nearest_node.y < pos.y:

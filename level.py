@@ -42,6 +42,7 @@ class Level:
         self.inky_start = GhostInit()
         self.ghost_door = None
         self.ready_gif_topleft = None
+        self.ghost_box = set()
 
     def setup(self):
         self.cross_ref.load_text_imgs()
@@ -109,6 +110,7 @@ class Level:
         self.cross_ref.load_cross_refs(self.edge_light_colour, self.fill_colour, self.edge_shadow_colour,
                                        self.pellet_colour)
         self.attach_tiles()
+        self.build_ghost_box()
         f.close()
         self.assert_start_positions()
         # print(len(self.edges[self.ghost_door]))
@@ -215,8 +217,10 @@ class Level:
                 self.set_tile(key, 0)
                 self.build_edges(key)
                 continue
-            if tile.id == BIG_PELLET_VAL:
-                self.big_dot_num += 1
+            if tile.id in PELLET_VALS:
+                if tile.id == BIG_PELLET_VAL:
+                    self.big_dot_num += 1
+                self.pellets += 1
             if tile.name == 'ready':
                 self.ready_gif_topleft: tuple = (key.x * 16 + 8 - 20, key.y * 16 + 8 - 5)
                 self.set_tile(key, 0)
@@ -230,6 +234,10 @@ class Level:
     def build_edges(self, node: PVector):
         edges = self.get_surrounding_accessibles(node)
         self.edges[node] = edges
+
+    def build_ghost_box(self):
+        self.ghost_box = {self.ghost_door, self.inky_start.get_start(), self.pinky_start.get_start(),
+                          self.clyde_start.get_start()}
 
     def calc_teleport(self, node: PVector) -> PVector:
         assert node.x == 0 or node.x == self.level_width - 1 or node.y == 0 or node.y == self.level_height - 1
@@ -308,6 +316,7 @@ class Level:
         assert self.clyde_start is not None, "No start position for Clyde found."
         assert self.inky_start is not None, "No start position for Inky found."
         assert self.ready_gif_topleft is not None, "No position for ready gif found."
+        assert self.ghost_box != set(), "Empty Ghost box"
 
     def get_tile_val(self, node):
         return self.tile_vals[node]
@@ -340,6 +349,7 @@ class Level:
         self.inky_start = GhostInit()
         self.ghost_door = None
         self.ready_gif_topleft = None
+        self.ghost_box = set()
 
     def get_life_gif(self):
         return self.cross_ref.id_to_img['life'].get_surf()
