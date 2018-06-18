@@ -1,9 +1,9 @@
 # coding=utf-8
-from math import sqrt, ceil, floor
+from math import ceil, floor, sqrt
 
 
 class PVector:
-    def __init__(self, x, y):
+    def __init__(self, x=0.0, y=0.0):
         """
         :param x: Horizontal Location or Velocity
         :param y: Vertical Location or Velocity
@@ -75,3 +75,11 @@ class PVector:
         manhattan = abs(self - other)
         euclidean = sqrt(manhattan.x ** 2 + manhattan.y ** 2)
         return euclidean
+
+    @staticmethod
+    def from_tuple(tup: tuple):
+        return PVector(tup[0], tup[1])
+
+    @staticmethod
+    def to_tuple(vec):
+        return vec.x, vec.y

@@ -1,22 +1,23 @@
 # coding=utf-8
 import os
 import pickle
+import sys
 from typing import List
 
 import pygame
 
 from PVector import PVector
-from constants import GameMode, GHOST_EAT_SCORE, ALL_GHOSTS_ALL_TIMES, resource_folder, font_folder
-from constants.constants import WAIT_FOR_READY_TIMER, GHOST_HIT_TIMER
+from constants import ALL_GHOSTS_ALL_TIMES, GHOST_EAT_SCORE, GameMode, font_folder, resource_folder
+from constants.constants import GHOST_HIT_TIMER, WAIT_FOR_READY_TIMER
 from constants.game_state import GameState
+from ghosts.blinky import Blinky
 from ghosts.clyde import Clyde
 from ghosts.ghost import Ghost
 from ghosts.inky import Inky
 from ghosts.pinky import Pinky
-from ghosts.blinky import Blinky
 from level import Level
 from pacman import Pacman
-import wx
+from text_input import TextInput
 
 
 class Game:
@@ -34,10 +35,23 @@ class Game:
         self.ate_all = 0
         self.timer = 0
         self.score_list = None
+        self.text_box: TextInput = None
+        self.font = None
+        self.events = None
+
+    def setup(self):
+        self.level.setup()
+        Ghost.load_surfs()
+        self.font = pygame.font.Font(os.path.join(font_folder, 'visitor1.ttf'), 24)
+        self.score_list = self.load_highscores()
+        self.text_box = TextInput(initial_string='CHOW', font_family=os.path.join(font_folder, 'visitor1.ttf'),
+                                  font_size=24, text_color=(255, 255, 255), cursor_color=(100, 100, 100), max_length=10)
+        self.reset()
 
     def run(self):
         self.setup()
         while True:
+            self.get_events()
             self.check_quit()
             if self.game_state == GameState.MAINGAME:
                 self.run_main_game()
@@ -60,11 +74,16 @@ class Game:
         self.draw_numbers()
 
     def run_highscore(self):
-        self.draw_highscores(self.score_list)
-        self.draw_quit_hint()
-        self.check_q_quit()
-        if self.check_try_again():
-            pass
+        if self.mode == GameMode.WAITING_FOR_NAME:
+            self.update_highscores()
+            self.draw_textbox()
+            self.draw_query()
+        elif self.mode == GameMode.SHOW_HIGHSCORE:
+            self.draw_highscores(self.score_list)
+            if self.check_try_again():
+                pass
+            self.draw_quit_hint()
+            self.check_q_quit()
 
     def run_normal(self):
         self.update_entities()
@@ -87,6 +106,7 @@ class Game:
         self.reset_entities()
         self.ate_all = 0
         self.timer = 0
+        self.text_box.clear_text()
 
     def reset_entities(self):
         self.entities = []
@@ -108,24 +128,20 @@ class Game:
             self.timer = 0
             # TODO set to 0? YES
 
-    def setup(self):
-        self.level.setup()
-        Ghost.load_surfs()
-        self.reset()
-        self.font = pygame.font.Font(os.path.join(font_folder, 'VISITOR.FON'), 100)
-        self.score_list = self.load_highscores()
-
     def draw_level(self):
         for row in range(self.level.height()):
             for col in range(self.level.width()):
                 surf = self.level.get_tile_surf(PVector(col, row))
                 self.screen.blit(surf, (col * 16, row * 16))
 
+    def get_events(self):
+        self.events = pygame.event.get()
+
     def check_quit(self):
-        for event in pygame.event.get():
+        for event in self.events:
             if event.type == pygame.QUIT:
                 pygame.quit()
-                exit()
+                sys.exit(0)
             # To force win
             # if event.type=pygame.
 
@@ -206,28 +222,24 @@ class Game:
         self.mode = GameMode.NORMAL
 
     def end(self):
+        self.game_state = GameState.HIGHSCORE
+        self.mode = GameMode.WAITING_FOR_NAME
         self.update_highscores()
         # print("This is the end of the demo. Thanks for playing!")
         # print(self.score)
         # exit(0)
 
-    def get_username(self):
-        app = wx.App(None)
-        dlog = wx.TextEntryDialog(None, "You made the high-score list! Name:")
-        dlog.SetMaxLength(10)
-        dlog.ShowModal()
-        name = dlog.GetValue()
-        dlog.Destroy()
-        app.Destroy()
-        return name
-
     def update_highscores(self):
-        name = self.get_username()
-        self.score_list = self.insert_score(name, self.score_list)
-        self.game_state = GameState.HIGHSCORE
+        if self.text_box.update(self.events):
+            self.score_list = self.insert_score(self.text_box.get_text(), self.score_list)
+            self.save_highscores()
+            self.mode = GameMode.SHOW_HIGHSCORE
 
     def load_highscores(self):
         return pickle.load(open(os.path.join(resource_folder, 'highscores.p'), 'rb'))
+
+    def save_highscores(self):
+        pickle.dump(self.score_list, open(os.path.join(resource_folder, 'highscores.p'), 'wb'))
 
     def insert_score(self, name: str, curr_scores: List[tuple]):
         for idx, entry in enumerate(curr_scores):
@@ -247,17 +259,33 @@ class Game:
             exit(0)
 
     def draw_highscores(self, scores: List[tuple]):
-        list_surf = pygame.Surface((24 * len(scores), 200))
+        list_surf = pygame.Surface((210, 26 * len(scores)))
         for i, entry in enumerate(scores):
-            render_str = entry[0] + 8 * ' ' + str(entry[1])
-            list_surf.blit(self.font.render(render_str, False, (255, 255, 255, 255)), (0, i * 24))
-        self.screen.blit(list_surf, (0, 0))
+            render_str = entry[0] + (15 - len(entry[0]) - len(str(entry[1]))) * ' ' + str(entry[1])
+            list_surf.blit(self.render_text(render_str), (0, i * 26))
+        self.screen.blit(list_surf, self.get_top_left(list_surf))
+
+    def draw_textbox(self):
+        surf = self.text_box.get_surface()
+        self.screen.blit(surf, self.get_top_left(surf))
 
     def draw_quit_hint(self):
         pass
 
     def check_try_again(self):
         pass
+
+    def draw_query(self):
+        text_surf = self.render_text("PLEASE ENTER YOUR NAME:")
+        self.screen.blit(text_surf, PVector.to_tuple(PVector.from_tuple(self.get_top_left(text_surf)) - PVector(0, 26)))
+
+    def get_top_left(self, surf: pygame.Surface):
+        surf_half_size = PVector.from_tuple(surf.get_size()) / 2
+        screen_center = PVector.from_tuple(self.screen.get_size()) / 2
+        return PVector.to_tuple(screen_center - surf_half_size)
+
+    def render_text(self, text: str):
+        return self.font.render(text, False, (255, 255, 255, 255))
 
 
 if __name__ == '__main__':
