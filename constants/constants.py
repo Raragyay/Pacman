@@ -38,4 +38,4 @@ max_cut = 16
 # Game running parameters
 default_speed = 1
 DEFAULT_LIVES = 1
-STARTING_LEVEL = 0
+STARTING_LEVEL = 1
