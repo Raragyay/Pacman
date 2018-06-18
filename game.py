@@ -7,8 +7,8 @@ from typing import List
 import pygame
 
 from PVector import PVector
-from constants import ALL_GHOSTS_ALL_TIMES, GHOST_EAT_SCORE, GameMode, font_folder, resource_folder
-from constants.constants import GHOST_HIT_TIMER, WAIT_FOR_READY_TIMER
+from constants import ALL_GHOSTS_ALL_TIMES, GHOST_EAT_SCORE, GameMode, font_folder, resource_folder, GHOST_HIT_TIMER, \
+    WAIT_FOR_READY_TIMER, DEFAULT_LIVES, STARTING_LEVEL
 from constants.game_state import GameState
 from ghosts.blinky import Blinky
 from ghosts.clyde import Clyde
@@ -24,26 +24,26 @@ class Game:
     def __init__(self):
         pygame.init()
         _ = pygame.display.set_mode((1, 1))
-        self.level_num = 1
+        self.level_num = STARTING_LEVEL
         self.score = 0
         self.clock = pygame.time.Clock()
         self.entities = []
         self.game_state = GameState.MAINGAME
         self.mode = GameMode.NORMAL
         self.level = Level()
-        self.lives = 1
+        self.lives = DEFAULT_LIVES
         self.ate_all = 0
         self.timer = 0
         self.score_list = None
         self.text_box: TextInput = None
-        self.font = None
-        self.events = None
+        self.font: pygame.font.Font = None
+        self.events: List = None
+        self.pacman: Pacman = None
 
     def setup(self):
         self.level.setup()
         Ghost.load_surfs()
         self.font = pygame.font.Font(os.path.join(font_folder, 'visitor1.ttf'), 24)
-        self.score_list = self.load_highscores()
         self.text_box = TextInput(initial_string='CHOW', font_family=os.path.join(font_folder, 'visitor1.ttf'),
                                   font_size=24, text_color=(255, 255, 255), cursor_color=(100, 100, 100), max_length=10)
         self.reset()
@@ -100,13 +100,14 @@ class Game:
 
     def reset(self):
         self.entities = []
+        self.game_state = GameState.MAINGAME
         self.mode = GameMode.WAIT_TO_START
         self.level.load_map(self.level_num)
         self.screen = pygame.display.set_mode((self.level.width() * 16, self.level.height() * 16))
         self.reset_entities()
         self.ate_all = 0
         self.timer = 0
-        self.text_box.clear_text()
+        self.text_box.reset()
 
     def reset_entities(self):
         self.entities = []
@@ -136,6 +137,7 @@ class Game:
 
     def get_events(self):
         self.events = pygame.event.get()
+        self.keys_pressed = pygame.key.get_pressed()
 
     def check_quit(self):
         for event in self.events:
@@ -189,6 +191,7 @@ class Game:
     def check_loss(self):
         if self.no_lives():
             self.end()
+            return
         for ghost in self.entities[1:]:
             if ghost.collided_with_pacman():
                 if ghost.scared_timer and not ghost.dead():
@@ -196,7 +199,6 @@ class Game:
                     self.wait_after_ghost_hit()
                     ghost.die()
                 elif not ghost.dead():
-                    # self.mode = GameMode.GHOST_HIT  # I'm not sure if it's supposed to be used for this
                     self.die()
 
     def add_ghost_hit_score(self):
@@ -219,12 +221,12 @@ class Game:
     def die(self):
         self.lives -= 1
         self.reset_entities()
-        self.mode = GameMode.NORMAL
+        self.mode = GameMode.WAIT_AFTER_GHOST_HIT
 
     def end(self):
+        self.score_list = self.load_highscores()
         self.game_state = GameState.HIGHSCORE
         self.mode = GameMode.WAITING_FOR_NAME
-        self.update_highscores()
         # print("This is the end of the demo. Thanks for playing!")
         # print(self.score)
         # exit(0)
@@ -239,7 +241,7 @@ class Game:
         return pickle.load(open(os.path.join(resource_folder, 'highscores.p'), 'rb'))
 
     def save_highscores(self):
-        pickle.dump(self.score_list, open(os.path.join(resource_folder, 'highscores.p'), 'wb'))
+        pickle.dump(self.score_list[:5], open(os.path.join(resource_folder, 'highscores.p'), 'wb'))
 
     def insert_score(self, name: str, curr_scores: List[tuple]):
         for idx, entry in enumerate(curr_scores):
@@ -252,17 +254,19 @@ class Game:
         return curr_scores
 
     def check_q_quit(self):
-        keys_pressed = pygame.key.get_pressed()
-
-        if keys_pressed[pygame.K_q]:
+        if self.keys_pressed[pygame.K_q]:
             pygame.quit()
             exit(0)
 
     def draw_highscores(self, scores: List[tuple]):
         list_surf = pygame.Surface((210, 26 * len(scores)))
         for i, entry in enumerate(scores):
-            render_str = entry[0] + (15 - len(entry[0]) - len(str(entry[1]))) * ' ' + str(entry[1])
-            list_surf.blit(self.render_text(render_str), (0, i * 26))
+            name_surf = self.render_text(entry[0])
+            score_surf = self.render_text(str(entry[1]))
+            line = pygame.Surface((210, 26))
+            line.blit(name_surf, (0, 0))
+            line.blit(score_surf, (210 - score_surf.get_size()[0], 0))
+            list_surf.blit(line, (0, i * 26))
         self.screen.blit(list_surf, self.get_top_left(list_surf))
 
     def draw_textbox(self):
@@ -273,7 +277,14 @@ class Game:
         pass
 
     def check_try_again(self):
-        pass
+        if self.keys_pressed[pygame.K_r]:
+            self.restart_main_game()
+
+    def restart_main_game(self):
+        self.lives = DEFAULT_LIVES
+        self.score = 0
+        self.level_num = STARTING_LEVEL
+        self.reset()
 
     def draw_query(self):
         text_surf = self.render_text("PLEASE ENTER YOUR NAME:")
