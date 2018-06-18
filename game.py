@@ -1,9 +1,14 @@
 # coding=utf-8
+import os
+import pickle
+from typing import List
+
 import pygame
 
 from PVector import PVector
-from constants import GameMode, GHOST_EAT_SCORE, ALL_GHOSTS_ALL_TIMES
+from constants import GameMode, GHOST_EAT_SCORE, ALL_GHOSTS_ALL_TIMES, resource_folder, font_folder
 from constants.constants import WAIT_FOR_READY_TIMER, GHOST_HIT_TIMER
+from constants.game_state import GameState
 from ghosts.clyde import Clyde
 from ghosts.ghost import Ghost
 from ghosts.inky import Inky
@@ -11,6 +16,7 @@ from ghosts.pinky import Pinky
 from ghosts.blinky import Blinky
 from level import Level
 from pacman import Pacman
+import wx
 
 
 class Game:
@@ -21,29 +27,44 @@ class Game:
         self.score = 0
         self.clock = pygame.time.Clock()
         self.entities = []
+        self.game_state = GameState.MAINGAME
         self.mode = GameMode.NORMAL
         self.level = Level()
-        self.lives = 3
+        self.lives = 1
         self.ate_all = 0
         self.timer = 0
+        self.score_list = None
 
     def run(self):
         self.setup()
         while True:
             self.check_quit()
-            if self.mode == GameMode.NORMAL:
-                self.run_normal()
-            elif self.mode == GameMode.WAIT_TO_START:
-                self.run_wait_to_start()
-            elif self.mode == GameMode.WAIT_AFTER_GHOST_HIT:
-                self.run_wait_after_ghost_hit()
-            self.draw_level()
-            self.draw_entities()
-            self.draw_numbers()
+            if self.game_state == GameState.MAINGAME:
+                self.run_main_game()
+            elif self.game_state == GameState.HIGHSCORE:
+                self.run_highscore()
             pygame.display.flip()
             self.clear()
             self.clock.tick(60)
             # print(self.clock.get_fps())
+
+    def run_main_game(self):
+        if self.mode == GameMode.NORMAL:
+            self.run_normal()
+        elif self.mode == GameMode.WAIT_TO_START:
+            self.run_wait_to_start()
+        elif self.mode == GameMode.WAIT_AFTER_GHOST_HIT:
+            self.run_wait_after_ghost_hit()
+        self.draw_level()
+        self.draw_entities()
+        self.draw_numbers()
+
+    def run_highscore(self):
+        self.draw_highscores(self.score_list)
+        self.draw_quit_hint()
+        self.check_q_quit()
+        if self.check_try_again():
+            pass
 
     def run_normal(self):
         self.update_entities()
@@ -91,6 +112,8 @@ class Game:
         self.level.setup()
         Ghost.load_surfs()
         self.reset()
+        self.font = pygame.font.Font(os.path.join(font_folder, 'VISITOR.FON'), 100)
+        self.score_list = self.load_highscores()
 
     def draw_level(self):
         for row in range(self.level.height()):
@@ -183,9 +206,58 @@ class Game:
         self.mode = GameMode.NORMAL
 
     def end(self):
-        print("This is the end of the demo. Thanks for playing!")
-        print(self.score)
-        exit(0)
+        self.update_highscores()
+        # print("This is the end of the demo. Thanks for playing!")
+        # print(self.score)
+        # exit(0)
+
+    def get_username(self):
+        app = wx.App(None)
+        dlog = wx.TextEntryDialog(None, "You made the high-score list! Name:")
+        dlog.SetMaxLength(10)
+        dlog.ShowModal()
+        name = dlog.GetValue()
+        dlog.Destroy()
+        app.Destroy()
+        return name
+
+    def update_highscores(self):
+        name = self.get_username()
+        self.score_list = self.insert_score(name, self.score_list)
+        self.game_state = GameState.HIGHSCORE
+
+    def load_highscores(self):
+        return pickle.load(open(os.path.join(resource_folder, 'highscores.p'), 'rb'))
+
+    def insert_score(self, name: str, curr_scores: List[tuple]):
+        for idx, entry in enumerate(curr_scores):
+            if self.score > entry[1]:
+                curr_scores.insert(idx, (name, self.score))
+                curr_scores.pop(-1)
+                break
+        else:
+            curr_scores.append((name, self.score))
+        return curr_scores
+
+    def check_q_quit(self):
+        keys_pressed = pygame.key.get_pressed()
+
+        if keys_pressed[pygame.K_q]:
+            pygame.quit()
+            exit(0)
+
+    def draw_highscores(self, scores: List[tuple]):
+        list_surf = pygame.Surface((24 * len(scores), 200))
+        for i, entry in enumerate(scores):
+            render_str = entry[0] + 8 * ' ' + str(entry[1])
+            list_surf.blit(self.font.render(render_str, False, (255, 255, 255, 255)), (0, i * 24))
+        self.screen.blit(list_surf, (0, 0))
+
+    def draw_quit_hint(self):
+        pass
+
+    def check_try_again(self):
+        pass
 
 
 if __name__ == '__main__':
