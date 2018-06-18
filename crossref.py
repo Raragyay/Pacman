@@ -12,10 +12,6 @@ class CrossRef:
         # self.wall_binary_to_img={}
 
     def load_cross_refs(self, edge_light_colour, fill_colour, edge_shadow_colour, pellet_colour):
-        logging.basicConfig(filename=os.path.join(log_folder, 'cross_refs.log'),
-                            filemode='w',
-                            format=log_format,
-                            level=cur_log_level)
         logging.info('Cross-references successfully opened')
 
         f = open(os.path.join(file_paths.base_folder, 'resources', 'crossref.txt'), 'r')
@@ -34,7 +30,7 @@ class CrossRef:
                 tile_id = int(str_split_by_space[0])
                 if len(str_split_by_space[0]) == 4:
                     tile_id = str_split_by_space[0]
-                logging.debug(tile_id)
+                # logging.debug(tile_id)
                 tile_name = str_split_by_space[1]
                 tile_desc = ' '.join(str_split_by_space[2:])
                 tile = Tile(tile_id, tile_name, tile_desc)

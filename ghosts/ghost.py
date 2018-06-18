@@ -6,7 +6,7 @@ from math import ceil
 
 import constants
 from PVector import PVector
-from constants import GameMode, default_speed
+from constants import GameMode, default_speed, SCARED_TICKS
 from entity import Entity
 from ghosts.ghost_init import GhostInit
 from ghosts.ghost_state import GhostState
@@ -72,11 +72,12 @@ class Ghost(Entity):
         self.check_node()
         self.move()
         if self.dead():
-            pass
-        elif self.scared():
+            return
+
+        self.check_pacman_eat()
+        if self.scared():
             self.reduce_scared_timer()
         else:  # Normal Game State
-            self.check_pacman_eat()
             self.increment_cycle()
 
     def increment_cycle(self):
@@ -100,7 +101,6 @@ class Ghost(Entity):
             else:
                 self.speed = default_speed
                 if self.start in self.level.ghost_box and self.nearest_node in self.level.ghost_box:
-                    # TODO change to level ghost box
                     self.exit_box()
                 elif self.cycle_state == GhostState.SCATTER:
                     self.scatter()
@@ -120,8 +120,9 @@ class Ghost(Entity):
 
     def check_pacman_eat(self):
         if self.pacman.ate_big_dot:
-            self.scared_timer = 300  # ticks, TODO add this to level file
-            self.reverse()
+            self.scared_timer = SCARED_TICKS  # ticks. Current default is 300 aka 5 seconds.
+            if not self.scared():
+                self.reverse()
 
     def reverse(self):
         self.direc *= -1
@@ -155,7 +156,6 @@ class Ghost(Entity):
         if self.dead():
             self.surf = Ghost.grey_surfs[self.anim_num].surface
         elif self.scared():
-            # TODO Add flashing
             if self.flash_white():
                 self.surf = Ghost.white_surfs[self.anim_num].surface
             else:
@@ -221,7 +221,7 @@ class Ghost(Entity):
         return self.nearest_node == self.pacman.nearest_node
 
     def in_ghost_box(self):
-        return self.nearest_node in self.level.ghost_box  # TODO modify to level ghost box
+        return self.nearest_node in self.level.ghost_box
 
     def exit_box(self):
         if self.nearest_node == self.level.ghost_door:  # Let's get out of the ghost box. And never go back

@@ -30,6 +30,7 @@ class Level:
         self.tile_vals = {}
         self.edges = {}
 
+        self.pellets = 0
         self.big_dot_num = 0
         self.fruit = Fruit()
 
@@ -56,15 +57,10 @@ class Level:
         """
         Resets the level class and loads a new map
         :param level_num: The level number
-        #TODO modularify
         """
         self.reset()
 
         f = open(os.path.join(level_location, r'level_' + str(level_num) + '.txt'), 'r')
-        logging.basicConfig(filename=os.path.join(log_folder, 'level_creation.log'),
-                            filemode='w',
-                            format=log_format,
-                            level=cur_log_level)
         logging.info('Level {} successfully opened'.format(level_num))  # log
 
         line_num = -1
@@ -85,17 +81,17 @@ class Level:
             elif identifier == '#':
                 logging.debug('This is a divider or attribute line.')
                 use_line = False
-                status = self.write_attr(str_split_by_space)  # TODO Turn this into a function to process status
+                status = self.write_attr(str_split_by_space)
                 if status == -1:
                     logging.warning(
-                            'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
+                        'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
                 elif status > 0:
                     is_reading_level_data = not is_reading_level_data
                     if status == 1:
                         row_num = 0
             elif not is_reading_level_data:
                 logging.warning(
-                        'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
+                    'Received unknown data at line {}: {}'.format(line_num + 1, ' '.join(str_split_by_space)))
             else:  # This means that we are reading the level data.
                 use_line = True
 
@@ -103,7 +99,7 @@ class Level:
                 logging.debug('{} tiles in row {}'.format(len(str_split_by_space), row_num))
                 assert len(str_split_by_space) == self.level_width, \
                     'width of row {} is different from width described in file, {}'.format(
-                            len(str_split_by_space), self.level_width)
+                        len(str_split_by_space), self.level_width)
                 for col in range(self.level_width):
                     self.init_tile(PVector(col, row_num), str_split_by_space[col])
                 row_num += 1
@@ -351,17 +347,23 @@ class Level:
         self.ready_gif_topleft = None
         self.ghost_box = set()
 
+    def get_surf(self, id):
+        return self.cross_ref.id_to_img[id].get_surf()
+
     def get_life_gif(self):
-        return self.cross_ref.id_to_img['life'].get_surf()
+        return self.get_surf('life')
 
     def get_text_num(self, char: str):
-        return self.cross_ref.id_to_img[char].get_surf()
+        return self.get_surf(char)
 
     def get_ready_gif(self):
-        return self.cross_ref.id_to_img['ready'].get_surf()
+        return self.get_surf('ready')
 
     def get_ready_pos(self):
         return self.ready_gif_topleft
+
+    def get_logo(self):
+        return self.get_surf('logo')
 
 
 if __name__ == '__main__':

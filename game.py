@@ -1,4 +1,5 @@
 # coding=utf-8
+import logging
 import os
 import pickle
 import sys
@@ -34,6 +35,7 @@ class Game:
         self.lives = DEFAULT_LIVES
         self.ate_all = 0
         self.timer = 0
+        self.screen = None
         self.score_list = None
         self.text_box: TextInput = None
         self.font: pygame.font.Font = None
@@ -41,12 +43,15 @@ class Game:
         self.pacman: Pacman = None
 
     def setup(self):
+        logging.debug('hi')
         self.level.setup()
         Ghost.load_surfs()
-        self.font = pygame.font.Font(os.path.join(font_folder, 'visitor1.ttf'), 24)
+        self.font = self.create_font(24)
         self.text_box = TextInput(initial_string='CHOW', font_family=os.path.join(font_folder, 'visitor1.ttf'),
                                   font_size=24, text_color=(255, 255, 255), cursor_color=(100, 100, 100), max_length=10)
-        self.reset()
+        pygame.display.set_caption('Pacman - Developed by Arthur Chen', 'Pacman')
+        self.screen = pygame.display.set_mode((400, 400))  # For title screen
+        self.game_state = GameState.MAINMENU
 
     def run(self):
         self.setup()
@@ -57,6 +62,8 @@ class Game:
                 self.run_main_game()
             elif self.game_state == GameState.HIGHSCORE:
                 self.run_highscore()
+            elif self.game_state == GameState.MAINMENU:
+                self.run_main_menu()
             pygame.display.flip()
             self.clear()
             self.clock.tick(60)
@@ -85,11 +92,16 @@ class Game:
             self.draw_quit_hint()
             self.check_q_quit()
 
+    def run_main_menu(self):
+        self.draw_pacman_logo()
+        self.draw_begin_prompt()
+        self.check_begin()
+
     def run_normal(self):
         self.update_entities()
         self.add_pacman_score()
         self.check_win()
-        self.check_loss()  # TODO Maybe move this somewhere else
+        self.check_loss()
 
     def run_wait_to_start(self):
         self.wait(WAIT_FOR_READY_TIMER)
@@ -98,8 +110,7 @@ class Game:
     def run_wait_after_ghost_hit(self):
         self.wait(GHOST_HIT_TIMER)
 
-    def reset(self):
-        self.entities = []
+    def start_round(self):
         self.game_state = GameState.MAINGAME
         self.mode = GameMode.WAIT_TO_START
         self.level.load_map(self.level_num)
@@ -108,6 +119,7 @@ class Game:
         self.ate_all = 0
         self.timer = 0
         self.text_box.reset()
+        print(self.screen.get_size())
 
     def reset_entities(self):
         self.entities = []
@@ -120,14 +132,12 @@ class Game:
         self.entities.append(Pinky(self.level, self.pacman))
         self.entities.append(Inky(self.level, self.pacman, self.entities[1]))
         self.entities.append(Clyde(self.level, self.pacman))
-        # TODO make list of ghosts
 
     def wait(self, limit):
         self.timer += 1
         if self.timer >= limit:
             self.mode = GameMode.NORMAL
             self.timer = 0
-            # TODO set to 0? YES
 
     def draw_level(self):
         for row in range(self.level.height()):
@@ -184,7 +194,7 @@ class Game:
             self.mode = GameMode.NORMAL
             self.level_num += 1
             try:
-                self.reset()
+                self.start_round()
             except FileNotFoundError:
                 self.end()
 
@@ -278,25 +288,46 @@ class Game:
 
     def check_try_again(self):
         if self.keys_pressed[pygame.K_r]:
-            self.restart_main_game()
+            self.start_game()
 
-    def restart_main_game(self):
+    def start_game(self):
         self.lives = DEFAULT_LIVES
         self.score = 0
         self.level_num = STARTING_LEVEL
-        self.reset()
+        self.start_round()
 
     def draw_query(self):
         text_surf = self.render_text("PLEASE ENTER YOUR NAME:")
-        self.screen.blit(text_surf, PVector.to_tuple(PVector.from_tuple(self.get_top_left(text_surf)) - PVector(0, 26)))
+        self.screen.blit(text_surf, self.vert_offset_middle(text_surf, PVector(0, -26)))
 
     def get_top_left(self, surf: pygame.Surface):
         surf_half_size = PVector.from_tuple(surf.get_size()) / 2
         screen_center = PVector.from_tuple(self.screen.get_size()) / 2
         return PVector.to_tuple(screen_center - surf_half_size)
 
-    def render_text(self, text: str):
-        return self.font.render(text, False, (255, 255, 255, 255))
+    def vert_offset_middle(self, surf: pygame.Surface, offset: PVector):
+        return PVector.to_tuple(PVector.from_tuple(self.get_top_left(surf)) + offset)
+
+    def render_text(self, text: str, font=None):
+        if font is None:
+            font = self.font
+        return font.render(text, False, (255, 255, 255, 255))
+
+    def create_font(self, size: int):
+        return pygame.font.Font(os.path.join(font_folder, 'visitor1.ttf'), size)
+
+    def draw_pacman_logo(self):
+        logo = self.level.get_logo()
+        self.screen.blit(logo, self.vert_offset_middle(logo, PVector(0, -100)))
+
+    def draw_begin_prompt(self):
+        font = self.create_font(16)
+        text = self.render_text('Press any key to begin', font)
+        self.screen.blit(text, self.get_top_left(text))
+
+    def check_begin(self):
+        if any(key for key in self.keys_pressed):
+            self.start_game()
 
 
 if __name__ == '__main__':
