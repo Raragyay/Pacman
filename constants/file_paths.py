@@ -3,7 +3,6 @@
 Folder paths. Used mostly by CrossRef and Tile classes to load files.
 """
 import os
-import sys
 
 base_folder = os.path.join(os.path.dirname(__file__), r'..')
 
