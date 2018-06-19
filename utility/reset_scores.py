@@ -1,4 +1,7 @@
 # coding=utf-8
+"""
+Small script to reset all scores to 0 to see score ordering.
+"""
 import pickle
 
 highscores = [

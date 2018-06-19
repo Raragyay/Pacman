@@ -4,20 +4,20 @@ Folder paths. Used mostly by CrossRef and Tile classes to load files.
 """
 import os
 
-base_folder = os.path.join(os.path.dirname(__file__), r'..')
+BASE_FOLDER = os.path.join(os.path.dirname(__file__), r'..')
 
-resource_folder = os.path.join(base_folder, 'resources')
-log_folder = os.path.join(base_folder, 'logs')
+RESOURCE_FOLDER = os.path.join(BASE_FOLDER, 'resources')
 
-level_location = os.path.join(resource_folder, 'levels')
-tile_folder = os.path.join(resource_folder, 'tiles')
-sprite_folder = os.path.join(resource_folder, 'sprites')
-text_folder = os.path.join(resource_folder, 'text')
-font_folder = os.path.join(resource_folder, 'font')
+LEVEL_FOLDER = os.path.join(RESOURCE_FOLDER, 'levels')
+TILE_FOLDER = os.path.join(RESOURCE_FOLDER, 'tiles')
+SPRITE_FOLDER = os.path.join(RESOURCE_FOLDER, 'sprites')
+TEXT_FOLDER = os.path.join(RESOURCE_FOLDER, 'text')
+FONT_FOLDER = os.path.join(RESOURCE_FOLDER, 'font')
+LOG_FOLDER = os.path.join(RESOURCE_FOLDER, 'logs')
 
 # Preliminary testing purposes.
 if __name__ == '__main__':
-    print(level_location)
-    with open(os.path.join(level_location, r'level_0.txt'), 'r') as f:
+    print(LEVEL_FOLDER)
+    with open(os.path.join(LEVEL_FOLDER, r'level_0.txt'), 'r') as f:
         for line in f:
             print(line)

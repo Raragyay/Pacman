@@ -1,7 +1,10 @@
 # coding=utf-8
+"""
+Test Cases for PVector
+"""
 from unittest import TestCase
 
-from PVector import PVector
+from utility.PVector import PVector
 
 
 class TestPVector(TestCase):

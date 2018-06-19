@@ -2,7 +2,7 @@
 ' Cross-reference for tiles and sprites.
 '
 ' Syntax for each line is in the form
-' [id] [tilename] [Tile Description]
+' [id] [tile_name] [Tile Description]
 '
 ' Example:
 ' 5130 cross-wall Cross Wall (Up Down Left Right Connected)
@@ -24,10 +24,8 @@
 020 door-h horizontal door (teleport to other side of maze)
 021 door-v vertical door (teleport to other side of maze)
 022 ready ready sign
-' 022 show-logo draws the logo
-' 023 high-scores draws a high-score list
 
-100 blank blank tile
+100 wall unfinished wall
 
 1100 wall-straight-h a horizontal wall
 0011 wall-straight-v a vertical wall

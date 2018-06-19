@@ -1,7 +1,10 @@
 # coding=utf-8
+"""
+Test Cases for tiles
+"""
 from unittest import TestCase
 
-from tile import Tile
+from utility.tile import Tile
 
 
 class TestTile(TestCase):

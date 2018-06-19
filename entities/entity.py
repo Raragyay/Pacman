@@ -1,102 +1,132 @@
 # coding=utf-8
+"""
+Base entity class for pacman and ghosts
+"""
 
-from PVector import PVector
-from constants import default_speed
-from level import Level
+from utility.PVector import PVector
+from constants import DEFAULT_SPEED
 
 
 class Entity:
-    level: Level
-    nearest_node: PVector
+    """
+    Entity class that has basic interactions
+    """
 
-    def __init__(self, loc, level):
+    def __init__(self, node, level):
         """
         """
-        self.pos = self.node_to_pixel(loc)
-        self.speed = default_speed
+        self.pos = self.node_to_pixel(node)
+        self.speed = DEFAULT_SPEED  # For ghost movement
         self.direc = PVector(0, 0)
         self.level = level
 
-        self.nearest_node = loc
-        self.max_anim_num = None
+        self.nearest_node = node
+
+        self.max_anim_num = None  # Each class will implement this themselves
         self.anim_num = 0
 
-    def node_to_pixel(self, node):
+    @staticmethod
+    def node_to_pixel(node):
+        """
+        Utility
+        :param node:
+        :return:
+        """
         return PVector(node.x * 16 + 8, node.y * 16 + 8)
 
     def pixel_to_node(self):
+        """
+        Utility
+        :return:
+        """
         return PVector(int(self.pos.x / 16), int(self.pos.y / 16))
 
-    # get the middle somehow
-    # ex 16-31 should all return 1
-    # done
-
-    def check_node(self):
-        if self.is_on_node():  # If we need to check our direction
-            self.check_teleport()
-            if len(self.path) > 1:  # Then if we already have our next direction set
-                self.path = self.path[1:]
-                # We'll take out our original direction, and set_direc will update our current direction
-            else:
-                self.update_direc()
-                # If we only have one direction, which is the old one now, we need to add a new one on.
-            self.set_direc()  # We're then going to update our current direction.
-
     def is_on_node(self):
+        """
+        Utility
+        :return:
+        """
         return (self.pos.x - 8) % 16 == 0 and (self.pos.y - 8) % 16 == 0
 
-    def set_direc(self):  # OUTDATED
-        self.direc = self.path[0]
-
-    def update_direc(self):
-        raise NotImplementedError('Do not create raw entity objects.')
-
     def move(self):
+        """
+        Used by ghost class
+        :return:
+        """
         self.pos += self.direc
         self.nearest_node = self.pixel_to_node()
 
     def top_left(self):
+        """
+        For drawing purposes
+        :return:
+        """
         return self.pos.x - 8, self.pos.y - 8
 
     def direc_to(self, pos: PVector):
-        if self.nearest_node == pos:
+        """
+        Utility function
+        :param pos:
+        :return:
+        """
+        if self.nearest_node == pos:  # We're on the destination
             return PVector(0, 0)
         if self.level.tiles[self.nearest_node].teleport_to_tile == pos:
             return self.direc
         if abs(self.nearest_node - pos) <= PVector(1, 1):
             if self.nearest_node.x == pos.x:
                 if self.nearest_node.y < pos.y:
-                    return PVector(0, self.speed)
+                    return PVector(0, self.speed)  # Right
                 else:
-                    return PVector(0, -self.speed)
+                    return PVector(0, -self.speed)  # Left
             elif self.nearest_node.y == pos.y:
                 if self.nearest_node.x < pos.x:
-                    return PVector(self.speed, 0)
+                    return PVector(self.speed, 0)  # Down
                 else:
-                    return PVector(-self.speed, 0)
+                    return PVector(-self.speed, 0)  # Up
         # raise ValueError(
         #         "Position {} is not orthogonally adjacent to entity position: {}".format(pos, self.nearest_node))
         return None
 
     def update_surf(self):
+        """
+        Abstract
+        :return:
+        """
         raise NotImplementedError('Do not create raw entity objects.')
 
     def increment_frame_num(self):
-        if self.direc == PVector(0, 0):
+        """
+        Utility function
+        :return:
+        """
+        if self.direc == PVector(0, 0):  # No incrementing if we're not moving.
             return
         self.anim_num += 1
         if self.anim_num > self.max_anim_num:
             self.anim_num = 0
 
     def update(self):
+        """
+        Abstract
+        :return:
+        """
         raise NotImplementedError('Do not create raw entity objects.')
 
     def check_teleport(self):
+        """
+        Teleport to the destination tile if we're standing on it
+        :return:
+        """
         if self.level.get_tile(self.nearest_node).teleport():
             self.nearest_node = self.level.get_tile(self.nearest_node).teleport_to_tile
             self.pos = self.node_to_pixel(self.nearest_node)
 
     def get_adj_nodes(self):
+        """
+        Used by exit_box to force our way out of the box.
+        :return:
+        """
         return [
             self.nearest_node + PVector(1, 0),
             self.nearest_node + PVector(0, 1),
